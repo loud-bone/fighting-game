@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fighting Game Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Arial Black', sans-serif;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            border: 4px solid #fff;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 50%, #8B7355 50%, #654321 100%);
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .mobile-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            max-width: 200px;
+        }
+        
+        .d-pad button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            border: 2px solid #fff;
+            background: rgba(100, 100, 100, 0.8);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            touch-action: none;
+        }
+        
+        .d-pad button:active {
+            background: rgba(150, 150, 150, 0.9);
+        }
+        
+        .d-pad .empty {
+            background: transparent;
+            border: none;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            max-width: 200px;
+            margin-left: auto;
+        }
+        
+        .action-buttons button {
+            width: 90px;
+            height: 50px;
+            font-size: 14px;
+            border: 2px solid #fff;
+            background: rgba(220, 50, 50, 0.8);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            touch-action: none;
+        }
+        
+        .action-buttons button:active {
+            background: rgba(255, 80, 80, 0.9);
+        }
+        
+        .action-buttons button.block {
+            grid-column: 1 / -1;
+            background: rgba(50, 150, 220, 0.8);
+        }
+        
+        .action-buttons button.block:active {
+            background: rgba(80, 180, 255, 0.9);
+        }
+        
+        .mode-buttons {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 999;
+        }
+        
+        .mode-buttons button {
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(255, 215, 0, 0.9);
+            border: 3px solid white;
+            border-radius: 10px;
+            color: #000;
+            cursor: pointer;
+            touch-action: none;
+        }
+        
+        .mode-buttons button:active {
+            background: rgba(255, 235, 50, 1);
+        }
+        
+        .mode-buttons.hidden {
+            display: none;
+        }
+        
+        .ui-container {
+            position: absolute;
+            top: 20px;
+            width: 1024px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+        
+        .player-hud {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .player-name {
+            color: white;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .health-bar-container {
+            width: 400px;
+            height: 30px;
+            background: #333;
+            border: 3px solid #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        
+        .health-bar {
+            height: 100%;
+            background: linear-gradient(to bottom, #4CAF50 0%, #45a049 100%);
+            transition: width 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+        
+        .health-bar.low {
+            background: linear-gradient(to bottom, #ff9800 0%, #ff6f00 100%);
+        }
+        
+        .health-bar.critical {
+            background: linear-gradient(to bottom, #f44336 0%, #d32f2f 100%);
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            color: #FFD700;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.9);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="mode-buttons" id="modeButtons">
+        <button onclick="selectMode('single')">Single Player (vs CPU)</button>
+        <button onclick="selectMode('two-player')">Two Player</button>
+    </div>
+    
+    <div style="position: relative;">
+        <canvas id="gameCanvas" width="1024" height="576"></canvas>
+        <div class="ui-container">
+            <div class="player-hud">
+                <div class="player-name">PLAYER 1</div>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="player1Health"></div>
+                </div>
+            </div>
+            <div class="player-hud" style="align-items: flex-end;">
+                <div class="player-name">PLAYER 2</div>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="player2Health"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-over" id="gameOver"></div>
+    </div>
+    
+    <div class="controls">
+        <h3>CONTROLS</h3>
+        <div class="controls-grid">
+            <div class="control-section">
+                <h4>Player 1</h4>
+                <p>W/A/S/D - Move & Jump</p>
+                <p>G - High Punch</p>
+                <p>H - Low Punch</p>
+                <p>B - High Kick</p>
+                <p>N - Low Kick</p>
+                <p>F - Block</p>
+            </div>
+            <div class="control-section">
+                <h4>Player 2</h4>
+                <p>Arrow Keys - Move & Jump</p>
+                <p>Numpad 1 - High Punch</p>
+                <p>Numpad 2 - Low Punch</p>
+                <p>Numpad 4 - High Kick</p>
+                <p>Numpad 5 - Low Kick</p>
+                <p>Numpad 0 - Block</p>
+            </div>
+        </div>
+        <p style="margin-top: 15px; text-align: center; color: #FFD700;">Press R to restart the game</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game constants
+        const GRAVITY = 0.8;
+        const GROUND = canvas.height - 100;
+        const CALLOUT_IDLE_TIME = 30000; // 30 seconds in milliseconds
+        
+        // Game state
+        let gameOver = false;
+        let lastActionTime = Date.now();
+        let gameMode = null; // 'single' or 'two-player'
+        let aiDifficulty = 'medium'; // 'easy', 'medium', 'hard'
+        
+        // Fighter class
+        class Fighter {
+            constructor(x, y, color, controls) {
+                this.x = x;
+                this.y = y;
+                this.width = 60;
+                this.height = 100;
+                this.color = color;
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.speed = 5;
+                this.jumpPower = 15;
+                this.health = 100;
+                this.maxHealth = 100;
+                this.isJumping = false;
+                this.controls = controls;
+                this.attacking = false;
+                this.attackTimer = 0;
+                this.attackType = '';
+                this.attackHeight = ''; // 'high' or 'low'
+                this.blocking = false;
+                this.isCallout = false;
+                this.calloutTimer = 0;
+                this.facingRight = x < canvas.width / 2;
+                
+                // Attack hitboxes
+                this.attackBox = {
+                    x: 0,
+                    y: 0,
+                    width: 0,
+                    height: 0
+                };
+            }
+            
+            update(opponent) {
+                // Update timers
+                if (this.attackTimer > 0) this.attackTimer--;
+                
+                // Update callout animation
+                if (this.isCallout) {
+                    this.calloutTimer++;
+                    if (this.calloutTimer > 60) { // Callout lasts 60 frames (1 second)
+                        this.isCallout = false;
+                        this.calloutTimer = 0;
+                    }
+                    return; // Can't do anything during callout
+                }
+                
+                // Face opponent
+                this.facingRight = this.x < opponent.x;
+                
+                // AI Logic
+                if (this.isAI) {
+                    this.updateAI(opponent);
+                } else {
+                    // Human player controls
+                    this.handlePlayerInput(opponent);
+                }
+                
+                // Apply gravity
+                this.velocityY += GRAVITY;
+                
+                // Update position
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+                
+                // Ground collision
+                if (this.y + this.height >= GROUND) {
+                    this.y = GROUND - this.height;
+                    this.velocityY = 0;
+                    this.isJumping = false;
+                }
+                
+                // Screen boundaries
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+                
+                if (this.attacking) {
+                    this.attackTimer--;
+                    if (this.attackTimer === 0) {
+                        this.attacking = false;
+                        this.attackBox.width = 0;
+                    }
+                }
+            }
+            
+            handlePlayerInput(opponent) {
+                // Handle blocking
+                this.blocking = keys[this.controls.block];
+                
+                // Movement (can't move while attacking)
+                if (!this.attacking) {
+                    this.velocityX = 0;
+                    
+                    if (keys[this.controls.left]) {
+                        this.velocityX = -this.speed;
+                    }
+                    if (keys[this.controls.right]) {
+                        this.velocityX = this.speed;
+                    }
+                    if (keys[this.controls.up] && !this.isJumping) {
+                        this.velocityY = -this.jumpPower;
+                        this.isJumping = true;
+                    }
+                }
+                
+                // Attack logic
+                if (!this.attacking && this.attackTimer === 0 && !this.blocking) {
+                    if (keys[this.controls.highPunch]) {
+                        this.attack('highPunch', 8, 15, 40, 30, 'high');
+                    } else if (keys[this.controls.lowPunch]) {
+                        this.attack('lowPunch', 6, 15, 35, 25, 'low');
+                    } else if (keys[this.controls.highKick]) {
+                        this.attack('highKick', 10, 20, 50, 35, 'high');
+                    } else if (keys[this.controls.lowKick]) {
+                        this.attack('lowKick', 7, 20, 45, 30, 'low');
+                    }
+                }
+            }
+            
+            updateAI(opponent) {
+                // AI thinking timer - makes decisions every 30-60 frames
+                this.aiThinkTimer++;
+                
+                const distance = Math.abs(this.x - opponent.x);
+                const difficultySettings = {
+                    easy: { thinkSpeed: 60, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
+                    medium: { thinkSpeed: 40, blockChance: 0.25, attackRange: 100, aggression: 0.5 },
+                    hard: { thinkSpeed: 25, blockChance: 0.4, attackRange: 120, aggression: 0.7 }
+                };
+                
+                const settings = difficultySettings[aiDifficulty];
+                
+                // Make new decision
+                if (this.aiThinkTimer >= settings.thinkSpeed) {
+                    this.aiThinkTimer = 0;
+                    
+                    // Should we block?
+                    if (opponent.attacking && Math.random() < settings.blockChance) {
+                        this.aiAction = 'block';
+                        this.aiActionTimer = 20;
+                    }
+                    // Are we in attack range?
+                    else if (distance < settings.attackRange && Math.random() < settings.aggression) {
+                        const attacks = ['highPunch', 'lowPunch', 'highKick', 'lowKick'];
+                        this.aiAction = attacks[Math.floor(Math.random() * attacks.length)];
+                        this.aiActionTimer = 30;
+                    }
+                    // Should we jump?
+                    else if (!this.isJumping && Math.random() < 0.15) {
+                        this.aiAction = 'jump';
+                        this.aiActionTimer = 10;
+                    }
+                    // Move toward opponent
+                    else if (distance > 60) {
+                        this.aiAction = 'moveToward';
+                        this.aiActionTimer = 40;
+                    }
+                    // Move away if too close
+                    else if (distance < 40) {
+                        this.aiAction = 'moveAway';
+                        this.aiActionTimer = 30;
+                    }
+                    else {
+                        this.aiAction = 'idle';
+                        this.aiActionTimer = 20;
+                    }
+                }
+                
+                // Execute current action
+                this.aiActionTimer--;
+                this.velocityX = 0;
+                this.blocking = false;
+                
+                if (this.aiAction === 'block') {
+                    this.blocking = true;
+                }
+                else if (this.aiAction === 'moveToward' && !this.attacking) {
+                    this.velocityX = this.x < opponent.x ? this.speed : -this.speed;
+                }
+                else if (this.aiAction === 'moveAway' && !this.attacking) {
+                    this.velocityX = this.x < opponent.x ? -this.speed : this.speed;
+                }
+                else if (this.aiAction === 'jump' && !this.isJumping) {
+                    this.velocityY = -this.jumpPower;
+                    this.isJumping = true;
+                    this.aiAction = 'idle';
+                }
+                else if (this.aiAction && this.aiAction.includes('Punch') || this.aiAction && this.aiAction.includes('Kick')) {
+                    if (!this.attacking && this.attackTimer === 0) {
+                        if (this.aiAction === 'highPunch') {
+                            this.attack('highPunch', 8, 15, 40, 30, 'high');
+                        } else if (this.aiAction === 'lowPunch') {
+                            this.attack('lowPunch', 6, 15, 35, 25, 'low');
+                        } else if (this.aiAction === 'highKick') {
+                            this.attack('highKick', 10, 20, 50, 35, 'high');
+                        } else if (this.aiAction === 'lowKick') {
+                            this.attack('lowKick', 7, 20, 45, 30, 'low');
+                        }
+                    }
+                }
+            }
+            
+            attack(type, damage, duration, width, height, attackHeight) {
+                this.attacking = true;
+                this.attackTimer = duration;
+                this.attackType = type;
+                this.attackHeight = attackHeight;
+                
+                // Set up attack hitbox
+                this.attackBox.width = width;
+                this.attackBox.height = height;
+                this.attackBox.x = this.facingRight ? this.x + this.width : this.x - width;
+                
+                // Position hitbox based on high or low attack
+                if (attackHeight === 'high') {
+                    this.attackBox.y = this.y + 10; // Upper body
+                } else {
+                    this.attackBox.y = this.y + this.height - height - 10; // Lower body
+                }
+            }
+            
+            takeDamage(damage, isBlocked) {
+                if (isBlocked) {
+                    damage *= 0.2; // Blocked attacks do 20% damage
+                }
+                this.health -= damage;
+                if (this.health < 0) this.health = 0;
+            }
+            
+            triggerCallout() {
+                this.isCallout = true;
+                this.calloutTimer = 0;
+            }
+            
+            draw() {
+                // Draw fighter body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw head
+                ctx.fillStyle = this.color === '#ff6b6b' ? '#ff8888' : '#6b9bff';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width / 2, this.y + 20, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw eyes (different for callout animation)
+                ctx.fillStyle = '#000';
+                const eyeOffset = this.facingRight ? 5 : -5;
+                
+                if (this.isCallout) {
+                    // Animated callout eyes - wider/excited
+                    ctx.fillRect(this.x + this.width / 2 - 10 + eyeOffset, this.y + 15, 5, 6);
+                    ctx.fillRect(this.x + this.width / 2 + 5 + eyeOffset, this.y + 15, 5, 6);
+                    
+                    // Draw mouth - open/shouting
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2 + eyeOffset, this.y + 28, 4, 0, Math.PI);
+                    ctx.fill();
+                    
+                    // Add exclamation mark above head
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = 'bold 24px Arial';
+                    ctx.fillText('!', this.x + this.width / 2 - 5, this.y - 10);
+                } else {
+                    // Normal eyes
+                    ctx.fillRect(this.x + this.width / 2 - 8 + eyeOffset, this.y + 15, 4, 4);
+                    ctx.fillRect(this.x + this.width / 2 + 4 + eyeOffset, this.y + 15, 4, 4);
+                }
+                
+                // Draw blocking indicator
+                if (this.blocking) {
+                    ctx.strokeStyle = '#4CAF50';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+                }
+                
+                // Draw attack hitbox (for debugging/visual feedback)
+                if (this.attacking && this.attackBox.width > 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                    ctx.fillRect(this.attackBox.x, this.attackBox.y, this.attackBox.width, this.attackBox.height);
+                    
+                    // Draw attack effect
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(this.attackBox.x, this.attackBox.y, this.attackBox.width, this.attackBox.height);
+                }
+            }
+        }
+        
+        // Keyboard input
+        const keys = {};
+        
+        // Touch controls mapping
+        const touchControls = {
+            btnUp: 'w',
+            btnLeft: 'a',
+            btnRight: 'd',
+            btnDown: 's',
+            btnHighPunch: 'g',
+            btnLowPunch: 'h',
+            btnHighKick: 'b',
+            btnLowKick: 'n',
+            btnBlock: 'f'
+        };
+        
+        // Set up touch controls
+        Object.keys(touchControls).forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            const key = touchControls[btnId];
+            
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys[key] = true;
+            });
+            
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+            });
+            
+            // Also support mouse for testing on desktop
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                keys[key] = true;
+            });
+            
+            btn.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+            });
+        });
+        
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            keys[e.key] = true;
+            
+            // Mode selection at start
+            if (!gameMode) {
+                if (e.key === '1') {
+                    selectMode('single');
+                } else if (e.key === '2') {
+                    selectMode('two-player');
+                }
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+            keys[e.key] = false;
+            
+            // Restart game
+            if (e.key.toLowerCase() === 'r') {
+                gameMode = null; // Reset mode selection
+                document.getElementById('gameOver').style.display = 'none';
+                drawModeSelection();
+            }
+        });
+        
+        // Initialize fighters
+        let player1, player2;
+        
+        function selectMode(mode) {
+            gameMode = mode;
+            document.getElementById('modeButtons').classList.add('hidden');
+            initGame();
+        }
+        
+        function initGame() {
+            const playerControls = {
+                left: 'a',
+                right: 'd',
+                up: 'w',
+                down: 's',
+                highPunch: 'g',
+                lowPunch: 'h',
+                highKick: 'b',
+                lowKick: 'n',
+                block: 'f'
+            };
+            
+            // Also accept arrow keys for single player
+            const player2Controls = {
+                left: 'ArrowLeft',
+                right: 'ArrowRight',
+                up: 'ArrowUp',
+                down: 'ArrowDown',
+                highPunch: '1',
+                lowPunch: '2',
+                highKick: '4',
+                lowKick: '5',
+                block: '0'
+            };
+            
+            player1 = new Fighter(150, GROUND - 100, '#ff6b6b', playerControls, false);
+            
+            if (gameMode === 'single') {
+                // Create AI opponent
+                player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', {}, true);
+                document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER';
+                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'CPU';
+            } else {
+                // Create human player 2
+                player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', player2Controls, false);
+                document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER 1';
+                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'PLAYER 2';
+            }
+            
+            gameOver = false;
+            lastActionTime = Date.now();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+        
+        // Reset action timer when any action occurs
+        function resetActionTimer() {
+            lastActionTime = Date.now();
+            // Exit callout state if active
+            player1.isCallout = false;
+            player2.isCallout = false;
+        }
+        
+        // Check collision between attack and opponent
+        function checkCollision(attacker, defender) {
+            if (!attacker.attacking || attacker.attackBox.width === 0) return false;
+            
+            return attacker.attackBox.x < defender.x + defender.width &&
+                   attacker.attackBox.x + attacker.attackBox.width > defender.x &&
+                   attacker.attackBox.y < defender.y + defender.height &&
+                   attacker.attackBox.y + attacker.attackBox.height > defender.y;
+        }
+        
+        // Update health bars
+        function updateHealthBars() {
+            const p1Health = document.getElementById('player1Health');
+            const p2Health = document.getElementById('player2Health');
+            
+            const p1Percent = (player1.health / player1.maxHealth) * 100;
+            const p2Percent = (player2.health / player2.maxHealth) * 100;
+            
+            p1Health.style.width = p1Percent + '%';
+            p2Health.style.width = p2Percent + '%';
+            
+            // Change color based on health
+            p1Health.className = 'health-bar';
+            p2Health.className = 'health-bar';
+            
+            if (p1Percent < 30) p1Health.className += ' critical';
+            else if (p1Percent < 50) p1Health.className += ' low';
+            
+            if (p2Percent < 30) p2Health.className += ' critical';
+            else if (p2Percent < 50) p2Health.className += ' low';
+        }
+        
+        // Game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw ground line
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND);
+            ctx.lineTo(canvas.width, GROUND);
+            ctx.stroke();
+            
+            // Wait for mode selection
+            if (!gameMode) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+            
+            if (!gameOver) {
+                // Check for callout trigger (30 seconds of inactivity)
+                const timeSinceAction = Date.now() - lastActionTime;
+                if (timeSinceAction >= CALLOUT_IDLE_TIME && !player1.isCallout && !player2.isCallout) {
+                    player1.triggerCallout();
+                    player2.triggerCallout();
+                }
+                
+                // Detect if any action occurred this frame
+                const anyMovement = player1.velocityX !== 0 || player1.velocityY !== 0 || 
+                                   player2.velocityX !== 0 || player2.velocityY !== 0;
+                const anyAttack = player1.attacking || player2.attacking;
+                const anyBlock = player1.blocking || player2.blocking;
+                
+                if (anyMovement || anyAttack || anyBlock) {
+                    resetActionTimer();
+                }
+                
+                // Update fighters
+                player1.update(player2);
+                player2.update(player1);
+                
+                // Check collisions
+                if (checkCollision(player1, player2)) {
+                    let damage = 0;
+                    if (player1.attackType === 'highPunch') damage = 8;
+                    else if (player1.attackType === 'lowPunch') damage = 6;
+                    else if (player1.attackType === 'highKick') damage = 10;
+                    else if (player1.attackType === 'lowKick') damage = 7;
+                    
+                    player2.takeDamage(damage, player2.blocking);
+                    player1.attackBox.width = 0; // Hit detected, remove hitbox
+                    resetActionTimer(); // Reset idle timer on hit
+                    
+                    if (player2.health <= 0) {
+                        gameOver = true;
+                        endGame();
+                    }
+                }
+                
+                if (checkCollision(player2, player1)) {
+                    let damage = 0;
+                    if (player2.attackType === 'highPunch') damage = 8;
+                    else if (player2.attackType === 'lowPunch') damage = 6;
+                    else if (player2.attackType === 'highKick') damage = 10;
+                    else if (player2.attackType === 'lowKick') damage = 7;
+                    
+                    player1.takeDamage(damage, player1.blocking);
+                    player2.attackBox.width = 0;
+                    resetActionTimer(); // Reset idle timer on hit
+                    
+                    if (player1.health <= 0) {
+                        gameOver = true;
+                        endGame();
+                    }
+                }
+                
+                // Update UI
+                updateHealthBars();
+            }
+            
+            // Draw fighters
+            player1.draw();
+            player2.draw();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function endGame() {
+            const gameOverDiv = document.getElementById('gameOver');
+            
+            if (player1.health > player2.health) {
+                gameOverDiv.textContent = 'PLAYER 1 WINS!';
+            } else if (player2.health > player1.health) {
+                gameOverDiv.textContent = 'PLAYER 2 WINS!';
+            } else {
+                gameOverDiv.textContent = 'DRAW!';
+            }
+            
+            gameOverDiv.style.display = 'block';
+        }
+        // Start game
+        initGame();
+        gameLoop();
+    </script>
+</body>
+</html>
