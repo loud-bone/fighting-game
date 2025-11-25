@@ -217,8 +217,8 @@
 </head>
 <body>
     <div class="mode-buttons" id="modeButtons">
-        <button onclick="selectMode('single')">Single Player (vs CPU)</button>
-        <button onclick="selectMode('two-player')">Two Player</button>
+        <button id="btnSinglePlayer">Single Player (vs CPU)</button>
+        <button id="btnTwoPlayer">Two Player</button>
     </div>
     
     <div style="position: relative;">
@@ -586,6 +586,15 @@
             btnLowKick: 'n',
             btnBlock: 'f'
         };
+        
+        // Mode selection buttons
+        document.getElementById('btnSinglePlayer').addEventListener('click', function() {
+            selectMode('single');
+        });
+        
+        document.getElementById('btnTwoPlayer').addEventListener('click', function() {
+            selectMode('two-player');
+        });
         
         // Set up touch controls
         Object.keys(touchControls).forEach(btnId => {
