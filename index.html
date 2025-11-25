@@ -48,8 +48,9 @@
             grid-template-columns: 1fr 1fr;
             gap: 5px;
             padding: 10px;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 1000;
+            border-top: 3px solid #FFD700;
         }
         
         .control-group {
@@ -628,39 +629,51 @@
         };
         
         // Mode selection buttons
-        document.getElementById('btnSinglePlayer').addEventListener('click', function() {
-            selectMode('single');
-        });
-        
-        document.getElementById('btnTwoPlayer').addEventListener('click', function() {
-            selectMode('two-player');
-        });
-        
-        // Set up touch controls
-        Object.keys(touchControls).forEach(btnId => {
-            const btn = document.getElementById(btnId);
-            const key = touchControls[btnId];
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up controls');
             
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                keys[key] = true;
+            document.getElementById('btnSinglePlayer').addEventListener('click', function() {
+                console.log('Single player clicked');
+                selectMode('single');
             });
             
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                keys[key] = false;
+            document.getElementById('btnTwoPlayer').addEventListener('click', function() {
+                console.log('Two player clicked');
+                selectMode('two-player');
             });
             
-            // Also support mouse for testing on desktop
-            btn.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                keys[key] = true;
+            // Set up touch controls
+            Object.keys(touchControls).forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (!btn) {
+                    console.error('Button not found:', btnId);
+                    return;
+                }
+                const key = touchControls[btnId];
+                
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys[key] = true;
+                });
+                
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys[key] = false;
+                });
+                
+                // Also support mouse for testing on desktop
+                btn.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    keys[key] = true;
+                });
+                
+                btn.addEventListener('mouseup', (e) => {
+                    e.preventDefault();
+                    keys[key] = false;
+                });
             });
             
-            btn.addEventListener('mouseup', (e) => {
-                e.preventDefault();
-                keys[key] = false;
-            });
+            console.log('Controls setup complete');
         });
         
         window.addEventListener('keydown', (e) => {
@@ -695,7 +708,9 @@
         function selectMode(mode) {
             gameMode = mode;
             document.getElementById('modeButtons').classList.add('hidden');
+            console.log('Mode selected:', mode);
             initGame();
+            console.log('Game initialized. Player1:', player1, 'Player2:', player2);
         }
         
         function initGame() {
@@ -888,4 +903,4 @@
         gameLoop();
     </script>
 </body>
-</html>
+</html>q
