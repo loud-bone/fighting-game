@@ -259,7 +259,7 @@
 </head>
 <body>
     <div class="mode-buttons" id="modeButtons">
-        <button id="btnSinglePlayer">Single Player (vs CPU)</button>
+        <button id="btnSinglePlayer">Single Player (vs ENNEMY)</button>
         <button id="btnTwoPlayer">Two Player</button>
     </div>
     
@@ -784,7 +784,7 @@
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', {}, true);
                 console.log('Created AI player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER';
-                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'CPU';
+                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'ENNEMY';
             } else {
                 // Create human player 2
                 console.log('Creating human player2 because gameMode is:', gameMode);
