@@ -431,7 +431,7 @@
                 }
                 
                 // Attack logic
-                if (!this.attacking && this.attackTimer <= 0 && !this.blocking) {
+                if (!this.attacking && this.attackTimer === 0 && !this.blocking) {
                     if (keys[this.controls.highPunch]) {
                         this.attack('highPunch', 8, 15, 40, 30, 'high');
                     } else if (keys[this.controls.lowPunch]) {
@@ -555,6 +555,7 @@
                 this.attackTimer = duration;
                 this.attackType = type;
                 this.attackHeight = attackHeight;
+                this.attackHasHit = false; // Reset hit flag for new attack
                 
                 // Set up attack hitbox
                 this.attackBox.width = width;
@@ -799,7 +800,7 @@
         
         // Check collision between attack and opponent
         function checkCollision(attacker, defender) {
-            if (!attacker.attacking || attacker.attackBox.width === 0) return false;
+            if (!attacker.attacking || attacker.attackBox.width === 0 || attacker.attackHasHit) return false;
             
             return attacker.attackBox.x < defender.x + defender.width &&
                    attacker.attackBox.x + attacker.attackBox.width > defender.x &&
@@ -879,7 +880,7 @@
                     else if (player1.attackType === 'lowKick') damage = 7;
                     
                     player2.takeDamage(damage, player2.blocking);
-                    player1.attackBox.width = 0; // Hit detected, remove hitbox
+                    player1.attackHasHit = true; // Mark this attack as having hit
                     resetActionTimer(); // Reset idle timer on hit
                     
                     if (player2.health <= 0) {
@@ -896,7 +897,7 @@
                     else if (player2.attackType === 'lowKick') damage = 7;
                     
                     player1.takeDamage(damage, player1.blocking);
-                    player2.attackBox.width = 0;
+                    player2.attackHasHit = true; // Mark this attack as having hit
                     resetActionTimer(); // Reset idle timer on hit
                     
                     if (player1.health <= 0) {
