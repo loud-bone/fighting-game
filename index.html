@@ -534,7 +534,7 @@
                     this.aiAction = 'idle';
                 }
                 else if (this.aiAction.includes('Punch') || this.aiAction.includes('Kick')) {
-                    if (!this.attacking && this.attackTimer <= 0) {
+                    if (!this.attacking && this.attackTimer === 0) {
                         console.log('AI executing attack:', this.aiAction);
                         if (this.aiAction === 'highPunch') {
                             this.attack('highPunch', 8, 15, 40, 30, 'high');
@@ -555,7 +555,7 @@
                 this.attackTimer = duration;
                 this.attackType = type;
                 this.attackHeight = attackHeight;
-                this.attackHasHit = false; // Reset hit flag for new attack
+		this.attackHasHit = false; // Reset hit flag for new attack
                 
                 // Set up attack hitbox
                 this.attackBox.width = width;
@@ -800,7 +800,7 @@
         
         // Check collision between attack and opponent
         function checkCollision(attacker, defender) {
-            if (!attacker.attacking || attacker.attackBox.width === 0 || attacker.attackHasHit) return false;
+            if (!attacker.attacking || attacker.attackBox.width === 0) attacker.attackHasHit) return false;
             
             return attacker.attackBox.x < defender.x + defender.width &&
                    attacker.attackBox.x + attacker.attackBox.width > defender.x &&
