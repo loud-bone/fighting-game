@@ -259,7 +259,7 @@
 </head>
 <body>
     <div class="mode-buttons" id="modeButtons">
-        <button id="btnSinglePlayer">Single Player (vs CPU)</button>
+        <button id="btnSinglePlayer">Single Player (vs ENNEMY)</button>
         <button id="btnTwoPlayer">Two Player</button>
     </div>
     
@@ -459,9 +459,9 @@
                 
                 const distance = Math.abs(this.x - opponent.x);
                 const difficultySettings = {
-                    easy: { thinkSpeed: 60, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
-                    medium: { thinkSpeed: 40, blockChance: 0.25, attackRange: 100, aggression: 0.5 },
-                    hard: { thinkSpeed: 25, blockChance: 0.4, attackRange: 120, aggression: 0.7 }
+                    easy: { thinkSpeed: 35, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
+                    medium: { thinkSpeed: 30, blockChance: 0.25, attackRange: 100, aggression: 0.6 },
+                    hard: { thinkSpeed: 25, blockChance: 0.5, attackRange: 120, aggression: 0.9 }
                 };
                 
                 const settings = difficultySettings[aiDifficulty];
@@ -783,7 +783,7 @@
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', {}, true);
                 console.log('Created AI player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER';
-                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'CPU';
+                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'ENNEMY';
             } else {
                 // Create human player 2
                 console.log('Creating human player2 because gameMode is:', gameMode);
