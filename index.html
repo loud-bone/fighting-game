@@ -325,37 +325,46 @@
         
         // Fighter class
         class Fighter {
-            constructor(x, y, color, controls) {
-                this.x = x;
-                this.y = y;
-                this.width = 60;
-                this.height = 100;
-                this.color = color;
-                this.velocityX = 0;
-                this.velocityY = 0;
-                this.speed = 5;
-                this.jumpPower = 15;
-                this.health = 100;
-                this.maxHealth = 100;
-                this.isJumping = false;
-                this.controls = controls;
-                this.attacking = false;
-                this.attackTimer = 0;
-                this.attackType = '';
-                this.attackHeight = ''; // 'high' or 'low'
-                this.blocking = false;
-                this.isCallout = false;
-                this.calloutTimer = 0;
-                this.facingRight = x < canvas.width / 2;
-                
-                // Attack hitboxes
-                this.attackBox = {
-                    x: 0,
-                    y: 0,
-                    width: 0,
-                    height: 0
-                };
-            }
+            constructor(x, y, color, controls, isAI) {
+		console.log('Fighter constructor called with:', {x, y, color, controls, isAI});
+   		 this.x = x;
+   		 this.y = y;
+		    this.width = 60;
+		    this.height = 100;
+		    this.color = color;
+		    this.velocityX = 0;
+		    this.velocityY = 0;
+		    this.speed = 5;
+		    this.jumpPower = 15;
+		    this.health = 100;
+		    this.maxHealth = 100;
+		    this.isJumping = false;
+		    this.controls = controls;
+		    this.attacking = false;
+		    this.attackTimer = 0;
+		    this.attackType = '';
+		    this.attackHeight = ''; // 'high' or 'low'
+		    this.blocking = false;
+		    this.isCallout = false;
+		    this.calloutTimer = 0;
+		    this.facingRight = x < canvas.width / 2;
+		    this.isAI = Boolean(isAI);
+    
+		    console.log('After assignment, this.isAI is:', this.isAI);
+    
+		    // AI-specific properties
+		    this.aiThinkTimer = 0;
+		    this.aiAction = null;
+		    this.aiActionTimer = 0;
+		    
+		    // Attack hitboxes
+		    this.attackBox = {
+		        x: 0,
+		        y: 0,
+		        width: 0,
+		        height: 0
+		    };
+		}
             
             update(opponent) {
                 // Update timers
