@@ -21,6 +21,7 @@
             font-family: 'Arial Black', sans-serif;
             overflow-x: hidden;
             padding-top: 10px;
+            padding-bottom: 200px; /* Space for controls */
         }
         
         .game-container {
@@ -492,9 +493,14 @@
                 }
                 
                 // Execute current action
-                this.aiActionTimer--;
+                if (this.aiActionTimer > 0) {
+                    this.aiActionTimer--;
+                }
+                
                 this.velocityX = 0;
                 this.blocking = false;
+                
+                if (!this.aiAction) return;
                 
                 if (this.aiAction === 'block') {
                     this.blocking = true;
@@ -505,12 +511,12 @@
                 else if (this.aiAction === 'moveAway' && !this.attacking) {
                     this.velocityX = this.x < opponent.x ? -this.speed : this.speed;
                 }
-                else if (this.aiAction === 'jump' && !this.isJumping) {
+                else if (this.aiAction === 'jump' && !this.isJumping && !this.attacking) {
                     this.velocityY = -this.jumpPower;
                     this.isJumping = true;
                     this.aiAction = 'idle';
                 }
-                else if (this.aiAction && this.aiAction.includes('Punch') || this.aiAction && this.aiAction.includes('Kick')) {
+                else if (this.aiAction.includes('Punch') || this.aiAction.includes('Kick')) {
                     if (!this.attacking && this.attackTimer === 0) {
                         if (this.aiAction === 'highPunch') {
                             this.attack('highPunch', 8, 15, 40, 30, 'high');
@@ -521,6 +527,7 @@
                         } else if (this.aiAction === 'lowKick') {
                             this.attack('lowKick', 7, 20, 45, 30, 'low');
                         }
+                        this.aiAction = 'idle'; // Reset after attacking
                     }
                 }
             }
