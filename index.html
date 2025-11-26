@@ -327,8 +327,8 @@
         class Fighter {
             constructor(x, y, color, controls, isAI) {
 		console.log('Fighter constructor called with:', {x, y, color, controls, isAI});
-   		 	this.x = x;
-   		 	this.y = y;
+   		 this.x = x;
+   		 this.y = y;
 		    this.width = 60;
 		    this.height = 100;
 		    this.color = color;
@@ -412,7 +412,7 @@
                 
                 if (this.attacking) {
                     this.attackTimer--;
-                    if (this.attackTimer <= 0) {
+                    if (this.attackTimer === 0) {
                         this.attacking = false;
                         this.attackBox.width = 0;
                     }
@@ -440,7 +440,7 @@
                 }
                 
                 // Attack logic
-                if (!this.attacking && this.attackTimer === 0 && !this.blocking) {
+                if (!this.attacking && this.attackTimer <= 0 && !this.blocking) {
                     if (keys[this.controls.highPunch]) {
                         this.attack('highPunch', 8, 15, 40, 30, 'high');
                     } else if (keys[this.controls.lowPunch]) {
@@ -543,7 +543,7 @@
                     this.aiAction = 'idle';
                 }
                 else if (this.aiAction.includes('Punch') || this.aiAction.includes('Kick')) {
-                    if (!this.attacking && this.attackTimer === 0) {
+                    if (!this.attacking && this.attackTimer <= 0) {
                         console.log('AI executing attack:', this.aiAction);
                         if (this.aiAction === 'highPunch') {
                             this.attack('highPunch', 8, 15, 40, 30, 'high');
