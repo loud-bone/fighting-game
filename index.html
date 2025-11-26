@@ -259,7 +259,7 @@
 </head>
 <body>
     <div class="mode-buttons" id="modeButtons">
-        <button id="btnSinglePlayer">Single Player (vs ENNEMY)</button>
+        <button id="btnSinglePlayer">Single Player (vs CPU)</button>
         <button id="btnTwoPlayer">Two Player</button>
     </div>
     
@@ -325,8 +325,7 @@
         
         // Fighter class
         class Fighter {
-            constructor(x, y, color, controls, isAI) {
-		console.log('Fighter constructor called with:', {x, y, color, controls, isAI});
+            constructor(x, y, color, controls) {
                 this.x = x;
                 this.y = y;
                 this.width = 60;
@@ -334,8 +333,8 @@
                 this.color = color;
                 this.velocityX = 0;
                 this.velocityY = 0;
-                this.speed = 10;
-                this.jumpPower = 20;
+                this.speed = 5;
+                this.jumpPower = 15;
                 this.health = 100;
                 this.maxHealth = 100;
                 this.isJumping = false;
@@ -348,15 +347,7 @@
                 this.isCallout = false;
                 this.calloutTimer = 0;
                 this.facingRight = x < canvas.width / 2;
-		this.isAI = Boolean(isAI);
                 
-		console.log('After assignment, this.isAI is:', this.isAI);
-		
-		// AI-specific properties
-		this.aiThinkTimer = 0;
-		this.aiAction = null;
-		this.aiActionTimer = 0;
-
                 // Attack hitboxes
                 this.attackBox = {
                     x: 0,
@@ -412,7 +403,7 @@
                 
                 if (this.attacking) {
                     this.attackTimer--;
-                    if (this.attackTimer <= 0) {
+                    if (this.attackTimer === 0) {
                         this.attacking = false;
                         this.attackBox.width = 0;
                     }
@@ -543,7 +534,7 @@
                     this.aiAction = 'idle';
                 }
                 else if (this.aiAction.includes('Punch') || this.aiAction.includes('Kick')) {
-                    if (!this.attacking && this.attackTimer === 0) {
+                    if (!this.attacking && this.attackTimer <= 0) {
                         console.log('AI executing attack:', this.aiAction);
                         if (this.aiAction === 'highPunch') {
                             this.attack('highPunch', 8, 15, 40, 30, 'high');
@@ -584,7 +575,6 @@
                 }
                 this.health -= damage;
                 if (this.health < 0) this.health = 0;
-		console.log('Damage', damage);
             }
             
             triggerCallout() {
@@ -784,7 +774,7 @@
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', {}, true);
                 console.log('Created AI player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER';
-                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'ENNEMY';
+                document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'CPU';
             } else {
                 // Create human player 2
                 console.log('Creating human player2 because gameMode is:', gameMode);
