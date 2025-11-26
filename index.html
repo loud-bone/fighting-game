@@ -800,7 +800,7 @@
         
         // Check collision between attack and opponent
         function checkCollision(attacker, defender) {
-            if (!attacker.attacking || attacker.attackBox.width === 0) attacker.attackHasHit) return false;
+            if ((!attacker.attacking || attacker.attackBox.width === 0) attacker.attackHasHit) return false;
             
             return attacker.attackBox.x < defender.x + defender.width &&
                    attacker.attackBox.x + attacker.attackBox.width > defender.x &&
