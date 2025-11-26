@@ -809,7 +809,6 @@
         
         // Check collision between attack and opponent
         function checkCollision(attacker, defender) {
-	    console.log('check collisions', attacker.attacking, attacker.attackBox.width)
             if (!attacker.attacking || attacker.attackBox.width === 0) return false;
             
             return attacker.attackBox.x < defender.x + defender.width &&
@@ -882,7 +881,6 @@
                 player2.update(player1);
                 
                 // Check collisions
-		console.log('check collisions', attacker.attacking, attacker.attackBox.width)
                 if (checkCollision(player1, player2)) {
                     let damage = 0;
                     if (player1.attackType === 'highPunch') damage = 8;
