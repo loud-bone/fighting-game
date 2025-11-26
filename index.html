@@ -325,7 +325,8 @@
         
         // Fighter class
         class Fighter {
-            constructor(x, y, color, controls) {
+            constructor(x, y, color, controls, isAI) {
+		console.log('Fighter constructor called with:', {x, y, color, controls, isAI});
                 this.x = x;
                 this.y = y;
                 this.width = 60;
@@ -347,7 +348,15 @@
                 this.isCallout = false;
                 this.calloutTimer = 0;
                 this.facingRight = x < canvas.width / 2;
+		this.isAI = Boolean(isAI);
                 
+		console.log('After assignment, this.isAI is:', this.isAI);
+		
+		// AI-specific properties
+		this.aiThinkTimer = 0;
+		this.aiAction = null;
+		this.aiActionTimer = 0;
+
                 // Attack hitboxes
                 this.attackBox = {
                     x: 0,
