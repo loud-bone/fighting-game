@@ -376,6 +376,7 @@
                 
                 // AI Logic
                 if (this.isAI) {
+                    console.log('Calling updateAI for AI fighter');
                     this.updateAI(opponent);
                 } else {
                     // Human player controls
@@ -768,11 +769,13 @@
             if (gameMode === 'single') {
                 // Create AI opponent
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', {}, true);
+                console.log('Created AI player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER';
                 document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'CPU';
             } else {
                 // Create human player 2
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', player2Controls, false);
+                console.log('Created human player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER 1';
                 document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'PLAYER 2';
             }
