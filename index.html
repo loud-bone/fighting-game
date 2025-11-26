@@ -732,6 +732,8 @@
         
         function selectMode(mode) {
             gameMode = mode;
+            console.log('selectMode called with:', mode);
+            console.log('gameMode is now:', gameMode);
             document.getElementById('modeButtons').classList.add('hidden');
             console.log('Mode selected:', mode);
             initGame();
@@ -768,12 +770,14 @@
             
             if (gameMode === 'single') {
                 // Create AI opponent
+                console.log('Creating AI opponent because gameMode is:', gameMode);
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', {}, true);
                 console.log('Created AI player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER';
                 document.getElementById('player2Health').parentElement.previousElementSibling.textContent = 'CPU';
             } else {
                 // Create human player 2
+                console.log('Creating human player2 because gameMode is:', gameMode);
                 player2 = new Fighter(canvas.width - 200, GROUND - 100, '#6ba3ff', player2Controls, false);
                 console.log('Created human player2. isAI:', player2.isAI);
                 document.getElementById('player1Health').parentElement.previousElementSibling.textContent = 'PLAYER 1';
