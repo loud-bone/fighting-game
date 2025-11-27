@@ -321,23 +321,104 @@
         let gameOver = false;
         let lastActionTime = Date.now();
         let gameMode = null; // 'single' or 'two-player'
-        let aiDifficulty = 'medium'; // 'easy', 'medium', 'hard'
         
+	// Players Stats
+	const characterStats = {
+	    player: {
+		name: 'HERO',
+		color: '#ff6b6b',
+		health: 200,
+		speed: 5,
+		jumpPower: 15,
+		damageMultiplier: 1.0
+	    },
+
+	    enemy1: {
+		name: 'ENEMY 1',
+		color: '#6ba3ff',
+		health: 200,
+		speed: 4,
+		jumpPower: 15,
+		difficulty: 'easy',
+		damageMultiplier: 0.75
+	    },
+
+	    enemy2: {
+		name: 'ENEMY 2',
+		color: '#ff9933',
+		health: 200,
+		speed: 6,
+		jumpPower: 10,
+		difficulty: 'easy',
+		damageMultiplier: 0.8
+	    },
+
+	    enemy3: {
+		name: 'ENEMY 3',
+		color: '#33ff57',
+		health: 200,
+		speed: 5,
+		jumpPower: 15,
+		difficulty: 'medium',
+		damageMultiplier: 0.9
+	    },
+
+	    enemy4: {
+		name: 'ENEMY 4',
+		color: '#ffeb3b',
+		health: 200,
+		speed: 5,
+		jumpPower: 15,
+		difficulty: 'medium',
+		damageMultiplier: 1.0
+	    },
+
+	    enemy5: {
+		name: 'ENEMY 5',
+		color: '#e91e63',
+		health: 200,
+		speed: 4,
+		jumpPower: 17,
+		difficulty: 'hard',
+		damageMultiplier: 1.0
+	    },
+
+	    enemy6: {
+		name: 'ENEMY 6',
+		color: '#00bcd4',
+		health: 200,
+		speed: 7,
+		jumpPower: 12,
+		difficulty: 'hard',
+		damageMultiplier: 1.2
+	    },
+
+	    boss: {
+		name: 'BIG BOSS',
+        color: '#9933ff',
+		health: 300,
+		speed: 6,
+		jumpPower: 18,
+		difficulty: 'boss',
+		damageMultiplier: 1.5
+	    }
+	};
+
         // Fighter class
         class Fighter {
-            constructor(x, y, color, controls, isAI) {
+            constructor(x, y, stats, controls, isAI) {
 		console.log('Fighter constructor called with:', {x, y, color, controls, isAI});
-   		 this.x = x;
-   		 this.y = y;
+   		    this.x = x;
+   		    this.y = y;
 		    this.width = 60;
 		    this.height = 100;
-		    this.color = color;
+		    this.color = stats.color;
 		    this.velocityX = 0;
 		    this.velocityY = 0;
-		    this.speed = 5;
-		    this.jumpPower = 15;
-		    this.health = 200;
-		    this.maxHealth = 200;
+		    this.speed = stats.speed;
+		    this.jumpPower = stats.jumpPower;
+		    this.health = stats.health;
+		    this.maxHealth = stats.health;
 		    this.isJumping = false;
 		    this.controls = controls;
 		    this.attacking = false;
@@ -348,6 +429,8 @@
 		    this.isCallout = false;
 		    this.calloutTimer = 0;
 		    this.facingRight = x < canvas.width / 2;
+		    this.difficulty = stats.difficulty;
+		    this.damageMultiplier = stats.damageMultiplier || 1.0;
 		    this.isAI = Boolean(isAI);
     
 		    console.log('After assignment, this.isAI is:', this.isAI);
@@ -459,12 +542,13 @@
                 
                 const distance = Math.abs(this.x - opponent.x);
                 const difficultySettings = {
-					easy: { thinkSpeed: 20, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
-                    medium: { thinkSpeed: 18, blockChance: 0.4, attackRange: 100, aggression: 0.7 },
-                    hard: { thinkSpeed: 15, blockChance: 0.6, attackRange: 150, aggression: 0.9 }
+			easy: { thinkSpeed: 20, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
+			medium: { thinkSpeed: 18, blockChance: 0.4, attackRange: 100, aggression: 0.7 },
+			hard: { thinkSpeed: 15, blockChance: 0.6, attackRange: 150, aggression: 0.9 },
+			boss: { thinkSpeed: 5, blockChance: 0.8, attackRange: 180, aggression: 1.0 }
                 };
                 
-                const settings = difficultySettings[aiDifficulty];
+                const settings = difficultySettings[this.difficulty];
                 
                 // Debug logging
                 if (this.aiThinkTimer === 1) {
