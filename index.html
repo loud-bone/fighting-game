@@ -27,7 +27,7 @@
         .game-container {
             position: relative;
             width: 100%;
-            max-width: 1024px;
+            max-width: 1080px;
             margin: 0 auto;
         }
         
@@ -459,9 +459,9 @@
                 
                 const distance = Math.abs(this.x - opponent.x);
                 const difficultySettings = {
-                    easy: { thinkSpeed: 35, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
-                    medium: { thinkSpeed: 30, blockChance: 0.25, attackRange: 100, aggression: 0.6 },
-                    hard: { thinkSpeed: 25, blockChance: 0.5, attackRange: 120, aggression: 0.9 }
+                    easy:   { thinkSpeed: 25, attackRange: 100, aggression: 0.5 }
+		    medium: { thinkSpeed: 18, attackRange: 120, aggression: 0.75 }
+		    hard:   { thinkSpeed: 12, attackRange: 140, aggression: 0.9 }
                 };
                 
                 const settings = difficultySettings[aiDifficulty];
