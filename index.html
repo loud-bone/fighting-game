@@ -792,7 +792,7 @@
             if (e.key.toLowerCase() === 'r') {
                 currentFight = 1; // Reset to first fight
                 document.getElementById('gameOver').style.display = 'none';
-   		document.getElementById('modeButtons').classList.remove('hidden');
+   				document.getElementById('modeButtons').classList.remove('hidden');
             }
         });
         
@@ -956,6 +956,7 @@
             player2.draw();
             
             requestAnimationFrame(gameLoop);
+        }
         
         function endGame() {
             const gameOverDiv = document.getElementById('gameOver');
