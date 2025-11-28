@@ -833,7 +833,6 @@
             gameOver = false;
             lastActionTime = Date.now();
             document.getElementById('gameOver').style.display = 'none';
-        }
         
         // Reset action timer when any action occurs
         function resetActionTimer() {
@@ -888,6 +887,10 @@
             ctx.lineTo(canvas.width, GROUND);
             ctx.stroke();
 
+			// Wait for game to start
+			if (!player1 || !player2) {
+				requestAnimationFrame(gameLoop);
+				return;
             }
             
             if (!gameOver) {
@@ -971,9 +974,8 @@
             
             gameOverDiv.style.display = 'block';
         }
-        // Start game
-        initGame();
-        gameLoop();
+        // Start game loop (but don't init yet - wait for button click)
+		gameLoop();
     </script>
 </body>
 </html>
