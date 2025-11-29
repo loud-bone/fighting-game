@@ -944,10 +944,26 @@
                     player2.attackBox.width = 0;
                     resetActionTimer(); // Reset idle timer on hit
                     
-                    if (player1.health <= 0) {
-                        gameOver = true;
-                        endGame();
-                    }
+                    if (player2.health <= 0) {
+						// Enemy defeated!
+						currentFight++; // Move to next fight
+						
+					if (currentFight > 7) {
+						// Beat the boss! Game complete!
+						gameOver = true;
+						endGame();
+					} else {
+        				// Load next opponent
+       					console.log('Victory! Loading fight', currentFight);
+        
+        				// Heal player between fights (optional - you decide)
+						player1.health = player1.maxHealth; // Full heal
+        
+						// Brief pause, then load next fight
+						setTimeout(() => {
+							initGame(); // Load next enemy
+						}, 5000); // 5 second delay to show victory
+					}
                 }
                 
                 // Update UI
@@ -964,12 +980,12 @@
         function endGame() {
             const gameOverDiv = document.getElementById('gameOver');
             
-            if (player1.health > player2.health) {
-                gameOverDiv.textContent = 'PLAYER 1 WINS!';
-            } else if (player2.health > player1.health) {
-                gameOverDiv.textContent = 'PLAYER 2 WINS!';
+            if (currentFight > 7 && player1.health > 0) {
+                gameOverDiv.textContent = 'YOU WIN! GAME COMPLETE!';
+            } else if (player1.health <= 0) {
+                gameOverDiv.textContent = 'GAME OVER!';
             } else {
-                gameOverDiv.textContent = 'DRAW!';
+                gameOverDiv.textContent = 'VICTORY!';
             }
             
             gameOverDiv.style.display = 'block';
