@@ -948,10 +948,15 @@
 							endGame();
 
 							setTimeout(() => {
+								console.log('setTimeout fired! currentFight is:', currentFight);
+
 								if (currentFight >= 7) {
+									console.log('Loading next fight...');
 									gameOver = false;
 									document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
 								initGame();
+								} else {
+									console.log('currentFight is > 7, not loading');
 								}
 							}, 2000);
 						}
