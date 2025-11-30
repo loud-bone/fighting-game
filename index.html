@@ -944,10 +944,15 @@
 							// Load next opponent
 							console.log('VICTORY! LOADING FIGHT!', currentFight);
 							player1.health = player1.maxHealth;  // Full heal
+							gameOver = true;
+							endGame();
 
 							setTimeout(() => {
+								if (currentFight > 7) {
+									gameOver = false;
+									document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
 								initGame();
-							}, 5000);
+							}, 2000);
 						}
                     }
                 }
