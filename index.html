@@ -807,6 +807,8 @@
         }
         
         function initGame() {
+			console.log('initGame called. currentFight:', currentFight);
+			
             const playerControls = {
                 left: 'a',
                 right: 'd',
@@ -824,6 +826,8 @@
             
 	    // Create AI opponent based on current fight
 		const enemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
+			console.log('enemyKey:', enemyKey);
+  			console.log('characterStats[enemyKey]:', characterStats[enemyKey]);
 		player2 = new Fighter(canvas.width - 200, GROUND - 100, characterStats[enemyKey], {}, true);
 
 	    // Update UI labels
@@ -959,28 +963,11 @@
                     player2.attackBox.width = 0;
                     resetActionTimer(); // Reset idle timer on hit
                     
-                    if (player2.health <= 0) {
-						// Enemy defeated!
-						currentFight++; // Move to next fight
-						
-					if (currentFight > 7) {
-						// Beat the boss! Game complete!
+                    if (player1.health <= 0) {
+						// Player defeated!
 						gameOver = true;
 						endGame();
-					} else {
-        				// Load next opponent
-       					console.log('Victory! Loading fight', currentFight);
-        
-        				// Heal player between fights (optional - you decide)
-						player1.health = player1.maxHealth; // Full heal
-        
-						// Brief pause, then load next fight
-						setTimeout(() => {
-							initGame(); // Load next enemy
-						}, 5000); // 5 second delay to show victory
 					}
-                }
-			}
 				
                 // Update UI
                 updateHealthBars();
