@@ -948,7 +948,7 @@
 							endGame();
 
 							setTimeout(() => {
-								if (currentFight > 7) {
+								if (currentFight >= 7) {
 									gameOver = false;
 									document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
 								initGame();
