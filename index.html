@@ -950,7 +950,7 @@
 							setTimeout(() => {
 								console.log('setTimeout fired! currentFight is:', currentFight);
 
-								if (currentFight >= 7) {
+								if (currentFight <= 7) {
 									console.log('Loading next fight...');
 									gameOver = false;
 									document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
