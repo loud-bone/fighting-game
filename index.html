@@ -929,8 +929,22 @@
                     resetActionTimer(); // Reset idle timer on hit
                     
                     if (player2.health <= 0) {
-                        gameOver = true;
-                        endGame();
+						// Enemy defeated!
+                        currentFight++; // Move to next fight
+
+						if (currentFight > 7) {
+							// Beat the boss! Game complete!
+							gameOver = true;
+							endGame();
+						} else {
+							// Load next opponent
+							console.log('VICTORY! LOADING FIGHT!', currentFight);
+							player1.health = player1.maxHealth;  // Full heal
+
+							setTimeout(() => {
+								initGame();
+							}, 5000);
+						}
                     }
                 }
                 
