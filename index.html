@@ -837,8 +837,26 @@
             gameOver = false;
             lastActionTime = Date.now();
             document.getElementById('gameOver').style.display = 'none';
+
+			showFightMessage();
 		}
-        
+
+		function showFightMessage() {
+			const gameOverdiv = document.getElementById('gameOver');
+			gameOverDiv.textContent = 'FIGHT!';
+			gameOverDiv.style.display = 'block';
+
+			// Hide after 2 seconds
+   			setTimeout(() => {
+				gameOverDiv.style.display = 'none';
+			}, 2000);
+		}
+		// Hide after 2 seconds
+    setTimeout(() => {
+        gameOverDiv.style.display = 'none';
+    }, 2000);
+
+		
         // Reset action timer when any action occurs
         function resetActionTimer() {
             lastActionTime = Date.now();
