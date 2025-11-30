@@ -842,7 +842,7 @@
 		}
 
 		function showFightMessage() {
-			const gameOverdiv = document.getElementById('gameOver');
+			const gameOverDiv = document.getElementById('gameOver');
 			gameOverDiv.textContent = 'FIGHT!';
 			gameOverDiv.style.display = 'block';
 
@@ -851,11 +851,6 @@
 				gameOverDiv.style.display = 'none';
 			}, 2000);
 		}
-		// Hide after 2 seconds
-    setTimeout(() => {
-        gameOverDiv.style.display = 'none';
-    }, 2000);
-
 		
         // Reset action timer when any action occurs
         function resetActionTimer() {
