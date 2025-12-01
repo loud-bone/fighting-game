@@ -416,7 +416,6 @@
 		    this.attacking = false;
 		    this.attackTimer = 0;
 		    this.attackType = '';
-		    this.attackHeight = ''; // 'high' or 'low'
 		    this.blocking = false;
 		    this.isCallout = false;
 		    this.calloutTimer = 0;
@@ -517,13 +516,11 @@
                 // Attack logic
                 if (!this.attacking && this.attackTimer <= 0 && !this.blocking) {
                     if (keys[this.controls.highPunch]) {
-                        this.attack('highPunch', 8, 15, 40, 30, 'high');
+                        this.attack('special', 8, 15, 40, 30);
                     } else if (keys[this.controls.lowPunch]) {
-                        this.attack('lowPunch', 6, 15, 35, 25, 'low');
+                        this.attack('punch', 6, 15, 35, 25);
                     } else if (keys[this.controls.highKick]) {
-                        this.attack('highKick', 10, 20, 50, 35, 'high');
-                    } else if (keys[this.controls.lowKick]) {
-                        this.attack('lowKick', 7, 20, 45, 30, 'low');
+                        this.attack('kick', 10, 20, 50, 35);
                     }
                 }
             }
@@ -561,7 +558,7 @@
                     }
                     // Are we in attack range?
                     else if (distance < settings.attackRange && Math.random() < settings.aggression) {
-                        const attacks = ['highPunch', 'lowPunch', 'highKick', 'lowKick'];
+                        const attacks = ['punch', 'special', 'kick'];
                         this.aiAction = attacks[Math.floor(Math.random() * attacks.length)];
                         this.aiActionTimer = 30;
                         console.log('AI decided to ATTACK:', this.aiAction);
@@ -621,36 +618,28 @@
                 else if (this.aiAction.includes('Punch') || this.aiAction.includes('Kick')) {
                     if (!this.attacking && this.attackTimer <= 0) {
                         console.log('AI executing attack:', this.aiAction);
-                        if (this.aiAction === 'highPunch') {
-                            this.attack('highPunch', 8, 15, 40, 30, 'high');
-                        } else if (this.aiAction === 'lowPunch') {
-                            this.attack('lowPunch', 6, 15, 35, 25, 'low');
-                        } else if (this.aiAction === 'highKick') {
-                            this.attack('highKick', 10, 20, 50, 35, 'high');
-                        } else if (this.aiAction === 'lowKick') {
-                            this.attack('lowKick', 7, 20, 45, 30, 'low');
+                        if (this.aiAction === 'special') {
+                            this.attack('special', 8, 15, 40, 30);
+                        } else if (this.aiAction === 'punch') {
+                            this.attack('punch', 6, 15, 35, 25);
+                        } else if (this.aiAction === 'kick') {
+                            this.attack('kick', 10, 20, 50, 35);
                         }
                         this.aiAction = 'idle'; // Reset after attacking
                     }
                 }
             }
             
-            attack(type, damage, duration, width, height, attackHeight) {
+            attack(type, damage, duration, width, height) {
                 this.attacking = true;
                 this.attackTimer = duration;
                 this.attackType = type;
-                this.attackHeight = attackHeight;
                 
                 // Set up attack hitbox
                 this.attackBox.width = width;
                 this.attackBox.height = height;
                 this.attackBox.x = this.facingRight ? this.x + this.width : this.x - width;
-                
-                // Position hitbox based on high or low attack
-                if (attackHeight === 'high') {
-                    this.attackBox.y = this.y + 10; // Upper body
-                } else {
-                    this.attackBox.y = this.y + this.height - height - 10; // Lower body
+                this.attackBox.y = this.y + this.height / 2 - height / 2;
                 }
             }
             
@@ -810,10 +799,9 @@
                 right: 'd',
                 up: 'w',
                 down: 's',
-                highPunch: 'g',
-                lowPunch: 'h',
-                highKick: 'b',
-                lowKick: 'n',
+                punch: 'g',
+                special: 'h',
+                kick: 'b',
                 block: 'f'
             };
             
@@ -932,10 +920,9 @@
                 // Check collisions
                 if (checkCollision(player1, player2)) {
                     let damage = 0;
-                    if (player1.attackType === 'highPunch') damage = 8;
-                    else if (player1.attackType === 'lowPunch') damage = 6;
-                    else if (player1.attackType === 'highKick') damage = 10;
-                    else if (player1.attackType === 'lowKick') damage = 7;
+                    if (player1.attackType === 'special') damage = 8;
+                    else if (player1.attackType === 'punch') damage = 6;
+                    else if (player1.attackType === 'kick') damage = 10;
                     
                     player2.takeDamage(damage, player2.blocking);
                     player1.attackBox.width = 0; // Hit detected, remove hitbox
@@ -974,10 +961,9 @@
                 
                 if (checkCollision(player2, player1)) {
                     let damage = 0;
-                    if (player2.attackType === 'highPunch') damage = 8;
-                    else if (player2.attackType === 'lowPunch') damage = 6;
-                    else if (player2.attackType === 'highKick') damage = 10;
-                    else if (player2.attackType === 'lowKick') damage = 7;
+                    if (player2.attackType === 'special') damage = 8;
+                    else if (player2.attackType === 'puch') damage = 6;
+                    else if (player2.attackType === 'kick') damage = 10;
                     
                     player1.takeDamage(damage, player1.blocking);
                     player2.attackBox.width = 0;
