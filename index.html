@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="fonts.googleapis.com">
     <title>Fighting Game Prototype</title>
     <style>
         * {
@@ -615,7 +614,7 @@
                     this.isJumping = true;
                     this.aiAction = 'idle';
                 }
-                else if (this.aiAction.includes('Punch') || this.aiAction.includes('Kick')) {
+                else if (this.aiAction === 'punch' || this.aiAction === 'kick' || this.aiAction === 'special') {
                     if (!this.attacking && this.attackTimer <= 0) {
                         console.log('AI executing attack:', this.aiAction);
                         if (this.aiAction === 'special') {
@@ -640,7 +639,6 @@
                 this.attackBox.height = height;
                 this.attackBox.x = this.facingRight ? this.x + this.width : this.x - width;
                 this.attackBox.y = this.y + this.height / 2 - height / 2;
-                }
             }
             
             takeDamage(damage, isBlocked) {
