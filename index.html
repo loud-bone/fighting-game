@@ -514,11 +514,11 @@
                 
                 // Attack logic
                 if (!this.attacking && this.attackTimer <= 0 && !this.blocking) {
-                    if (keys[this.controls.highPunch]) {
+                    if (keys[this.controls.special]) {
                         this.attack('special', 8, 15, 40, 30);
-                    } else if (keys[this.controls.lowPunch]) {
+                    } else if (keys[this.controls.punch]) {
                         this.attack('punch', 6, 15, 35, 25);
-                    } else if (keys[this.controls.highKick]) {
+                    } else if (keys[this.controls.kick]) {
                         this.attack('kick', 10, 20, 50, 35);
                     }
                 }
@@ -798,8 +798,8 @@
                 up: 'w',
                 down: 's',
                 punch: 'g',
+				kick: 'b',
                 special: 'h',
-                kick: 'b',
                 block: 'f'
             };
             
@@ -936,7 +936,7 @@
 							endGame();
 						} else {
 							// Load next opponent
-							console.log('VICTORY! LOADING FIGHT!', currentFight);
+							console.log('VICTORY!', currentFight);
 							player1.health = player1.maxHealth;  // Full heal
 							gameOver = true;
 							endGame();
@@ -989,9 +989,9 @@
             const gameOverDiv = document.getElementById('gameOver');
             
             if (currentFight > 7 && player1.health > 0) {
-                gameOverDiv.textContent = 'YOU WIN! GAME COMPLETE!';
+                gameOverDiv.textContent = 'GAME COMPLETE!';
             } else if (player1.health <= 0) {
-                gameOverDiv.textContent = 'GAME OVER!';
+                gameOverDiv.textContent = 'YOU LOSE!';
             } else {
                 gameOverDiv.textContent = 'VICTORY!';
             }
