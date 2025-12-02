@@ -831,7 +831,7 @@
 			showRoundMessage();
 		}
 
-		// NEW FUNCTION GOES HERE:
+		// ROUNDS
 		function startRound() {
    			console.log('Starting round', currentRound);
     
@@ -873,6 +873,22 @@
         }, 1000);
     }, 1000);
 }
+
+		function showVSScreen(enemyName) {
+			const gameOverDiv = document.getElementById('gameOver');
+			gameOverDiv.innerHTML = `<div style="font-size: 48px;">${characterStats.player.name}</div>
+									 <div style="font-size: 72px; margin: 20px 0;">VS</div>
+									 <div style="font-size: 48px;">${enemyName}</div>`;
+			gameOverDiv.style.display = 'block';
+
+			console.log('Showing VS screen:', characterStats.player.name, 'vs', enemyName);
+
+			// Hide after 3 seconds and start the fight
+			setTimeout(() => {
+				gameOverDiv.style.display = 'none';
+				showRoundMessage(); // Start Round 1
+			}, 3000);
+		}
 		
 		// Reset action timer when any action occurs
         function resetActionTimer() {
