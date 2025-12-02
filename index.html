@@ -818,12 +818,17 @@
 	    // Update UI labels
 		document.getElementById('player1Health').parentElement.previousElementSibling.textContent = characterStats.player.name;
 		document.getElementById('player2Health').parentElement.previousElementSibling.textContent = characterStats[enemyKey].name;
+
+			// Reset round tracking
+			currentRound = 1; 
+			player1RoundWins = 0;
+			player2RoundWins = 0;
             
             gameOver = false;
             lastActionTime = Date.now();
             document.getElementById('gameOver').style.display = 'none';
 
-			showFightMessage();
+			showRoundMessage();
 		}
 
 		// NEW FUNCTION GOES HERE:
@@ -869,18 +874,7 @@
     }, 1000);
 }
 		
-		function showFightMessage() {
-			const gameOverDiv = document.getElementById('gameOver');
-			gameOverDiv.textContent = 'FIGHT!';
-			gameOverDiv.style.display = 'block';
-
-			// Hide after 2 seconds
-   			setTimeout(() => {
-				gameOverDiv.style.display = 'none';
-			}, 2000);
-		}
-		
-        // Reset action timer when any action occurs
+		// Reset action timer when any action occurs
         function resetActionTimer() {
             lastActionTime = Date.now();
             // Exit callout state if active
@@ -973,35 +967,56 @@
                     resetActionTimer(); // Reset idle timer on hit
                     
                     if (player2.health <= 0) {
-						// Enemy defeated!
-                        currentFight++; // Move to next fight
+						// Player won the round!
+						player1RoundWins++;
+						console.log('Player wins round! Score:', player1RoundWins, '-', player2RoundWins);
 
-						if (currentFight > 7) {
-							// Beat the boss! Game complete!
-							gameOver = true;
-							endGame();
-						} else {
-							// Load next opponent
-							console.log('VICTORY!', currentFight);
-							player1.health = player1.maxHealth;  // Full heal
-							gameOver = true;
-							endGame();
+						if (player1RoundWins >= 2) {
+        					// WON THE MATCH! Move to next enemy
+        					console.log('Player wins match!');
+        					currentFight++; // Move to next fight
+
+							// Reset round tracking for next fight
+        					currentRound = 1;
+        					player1RoundWins = 0;
+        					player2RoundWins = 0;
+							
+							if (currentFight > 7) {
+								// Beat the boss! Game complete!
+								gameOver = true;
+								endGame();
+							} else {
+								// Load next opponent
+								console.log('VICTORY!', currentFight);
+								player1.health = player1.maxHealth;  // Full heal
+								gameOver = true;
+								endGame();
+
+								setTimeout(() => {
+									console.log('setTimeout fired! currentFight is:', currentFight);
+
+									if (currentFight <= 7) {
+										console.log('Loading next fight...');
+										gameOver = false;
+										document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
+										initGame();
+									} else {
+										console.log('currentFight is > 7, not loading');
+									}
+								}, 2000);
+							}
+                    	} else {
+							// Won the round but not the match - start next round
+							console.log('Starting next round...');
+							gameOverDiv.textContent = 'ROUND WON!';
+							gameOverDiv.style.display = 'block';
 
 							setTimeout(() => {
-								console.log('setTimeout fired! currentFight is:', currentFight);
-
-								if (currentFight <= 7) {
-									console.log('Loading next fight...');
-									gameOver = false;
-									document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
-								initGame();
-								} else {
-									console.log('currentFight is > 7, not loading');
-								}
+								startRound();
 							}, 2000);
 						}
-                    }
-                }
+					}
+				}
                 
                 if (checkCollision(player2, player1)) {
                     let damage = 0;
@@ -1014,9 +1029,31 @@
                     resetActionTimer(); // Reset idle timer on hit
                     
                     if (player1.health <= 0) {
-						// Player defeated!
-						gameOver = true;
-						endGame();
+						// AI won the round!
+						player2RoundWins++;
+						    console.log('AI wins round! Score:', player1RoundWins, '-', player2RoundWins);
+
+						if (player2RoundWins >= 2) {
+							// Lost the match - GAME OVER!
+
+							console.log('AI wins match - Game Over!');
+							gameOver = true;
+							endGame();
+						} else {
+						// Lost the round but not the match - start next round
+							console.log('Starting next round...');
+							currentRound++;
+							gameOver = true;
+
+							// Show round result
+							const gameOverDiv = document.getElementById('gameOver');
+							gameOverDiv.textContent = 'ROUND LOST!';
+							gameOverDiv.style.display = 'block';
+
+							setTimeout(() => {
+								startRound();
+							}, 2000);
+						}
 					}
 				}
 				
