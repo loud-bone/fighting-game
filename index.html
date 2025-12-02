@@ -826,6 +826,49 @@
 			showFightMessage();
 		}
 
+		// NEW FUNCTION GOES HERE:
+		function startRound() {
+   			console.log('Starting round', currentRound);
+    
+    		// Reset fighter positions
+    		player1.x = 150;
+    		player1.y = GROUND - 100;
+    		player2.x = canvas.width - 200;
+    		player2.y = GROUND - 100;
+    
+    		// Reset health
+   			player1.health = player1.maxHealth;
+    		player2.health = player2.maxHealth;
+    
+    		// Reset velocities
+    		player1.velocityX = 0;
+    		player1.velocityY = 0;
+    		player2.velocityX = 0;
+    		player2.velocityY = 0;
+    
+    		// Reset game state
+    		gameOver = false;
+    
+    		// Show "ROUND X - FIGHT!"
+    		showRoundMessage();
+			}
+
+		function showRoundMessage() {
+    	const gameOverDiv = document.getElementById('gameOver');
+    		gameOverDiv.textContent = `ROUND ${currentRound}`;
+    		gameOverDiv.style.display = 'block';
+    
+    	// Show "FIGHT!" after 1 second
+    	setTimeout(() => {
+        	gameOverDiv.textContent = 'FIGHT!';
+        
+        // Hide after another 1 second
+        setTimeout(() => {
+            gameOverDiv.style.display = 'none';
+        }, 1000);
+    }, 1000);
+}
+		
 		function showFightMessage() {
 			const gameOverDiv = document.getElementById('gameOver');
 			gameOverDiv.textContent = 'FIGHT!';
