@@ -1008,6 +1008,11 @@
                     	} else {
 							// Won the round but not the match - start next round
 							console.log('Starting next round...');
+							currentRound++;
+							gameOver = true;
+
+							// Show round result
+							const gameOverDiv = document.getElementById('gameOver');
 							gameOverDiv.textContent = 'ROUND WON!';
 							gameOverDiv.style.display = 'block';
 
