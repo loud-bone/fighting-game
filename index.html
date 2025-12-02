@@ -920,6 +920,13 @@
 
 			// Show black overlay
 			const overlay = document.getElementById('vsOverlay');
+			    console.log('Overlay element:', overlay);
+
+			if (!overlay) {
+				console.error('vsOverlay element not found! Check HTML.');
+				return;
+			}
+			
 			const content = document.getElementById('vsContent');
 
 			// Build VS screen content
