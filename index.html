@@ -250,6 +250,40 @@
 			animation: fadeOut 0.5s;
 
         }
+
+		#vsOverlay {
+    		position: fixed;
+    		top: 0;
+    		left: 0;
+    		width: 100vw;
+    		height: 100vh;
+    		background: #000000;
+    		z-index: 9999;
+    		display: flex;
+    		justify-content: center;
+    		align-items: center;
+		}
+
+		#vsContent {
+   			text-align: center;
+    		color: white;
+    		font-family: 'Arial Black', sans-serif;
+		}
+
+		#vsContent .character-name {
+    		font-size: 64px;
+    		color: #FFD700;
+    		text-shadow: 4px 4px 8px rgba(0,0,0,0.9);
+    		margin: 20px 0;
+		}
+
+		#vsContent .vs-text {
+    		font-size: 96px;
+    		color: #ff0000;
+    		text-shadow: 6px 6px 12px rgba(255,0,0,0.8);
+    		margin: 40px 0;
+    		font-weight: bold;
+		}
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
@@ -283,8 +317,11 @@
 
         <div class="game-over" id="gameOver"></div>
     </div>
+
+	</div id="vsOverlay" style="display: none;">
+		<div id="vsContent"></div>
     
-    <div class="controls">
+    <div class="controls-image">
         <h3>CONTROLS</h3>
         <div class="controls-grid">
             <div class="control-section">
@@ -879,14 +916,21 @@
 }
 
 		function showVSScreen(enemyName) {
-			const gameOverDiv = document.getElementById('gameOver');
-			gameOverDiv.innerHTML = `<div style="font-size: 48px;">${characterStats.player.name}</div>
-									 <div style="font-size: 72px; margin: 20px 0;">VS</div>
-									 <div style="font-size: 48px;">${enemyName}</div>`;
-			gameOverDiv.style.display = 'block';
-
 			console.log('Showing VS screen:', characterStats.player.name, 'vs', enemyName);
 
+			// Show black overlay
+			const overlay = document.getElementById('vsOverlay');
+			const content = document.getElementById('vsContent');
+
+			// Build VS screen content
+			content.innerHTML = `
+				<div class="character-name">${characterStats.player.name}</div>
+				<div class="vs-text">VS</div>
+				<div class="character-name">${enemyName}</div>
+			`;
+
+			overlay.style.display = 'flex';
+			
 			// Hide after 3 seconds and start the fight
 			setTimeout(() => {
 				gameOverDiv.style.display = 'none';
