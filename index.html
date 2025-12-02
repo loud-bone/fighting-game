@@ -789,6 +789,11 @@
             console.log('Starting game');
             document.getElementById('modeButtons').classList.add('hidden');
             initGame();
+
+			// Show first VS screen
+			const firstEnemyName = characterStats.enemy1.name;
+			showVSScreen(firstEnemyName);
+			
             console.log('Game initialized. Player1:', player1, 'Player2:', player2);
         }
         
@@ -806,18 +811,18 @@
                 block: 'f'
             };
             
-	    // Create player
-		player1 = new Fighter(150, GROUND - 100, characterStats.player, playerControls, false);
+	    	// Create player
+			player1 = new Fighter(150, GROUND - 100, characterStats.player, playerControls, false);
             
-	    // Create AI opponent based on current fight
-		const enemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
-			console.log('enemyKey:', enemyKey);
-  			console.log('characterStats[enemyKey]:', characterStats[enemyKey]);
-		player2 = new Fighter(canvas.width - 200, GROUND - 100, characterStats[enemyKey], {}, true);
+	    	// Create AI opponent based on current fight
+			const enemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
+				console.log('enemyKey:', enemyKey);
+  				console.log('characterStats[enemyKey]:', characterStats[enemyKey]);
+			player2 = new Fighter(canvas.width - 200, GROUND - 100, characterStats[enemyKey], {}, true);
 
-	    // Update UI labels
-		document.getElementById('player1Health').parentElement.previousElementSibling.textContent = characterStats.player.name;
-		document.getElementById('player2Health').parentElement.previousElementSibling.textContent = characterStats[enemyKey].name;
+	    	// Update UI labels
+			document.getElementById('player1Health').parentElement.previousElementSibling.textContent = characterStats.player.name;
+			document.getElementById('player2Health').parentElement.previousElementSibling.textContent = characterStats[enemyKey].name;
 
 			// Reset round tracking
 			currentRound = 1; 
@@ -827,8 +832,7 @@
             gameOver = false;
             lastActionTime = Date.now();
             document.getElementById('gameOver').style.display = 'none';
-
-			showRoundMessage();
+			
 		}
 
 		// ROUNDS
@@ -1014,8 +1018,16 @@
 									if (currentFight <= 7) {
 										console.log('Loading next fight...');
 										gameOver = false;
-										document.getElementById('gameOver').style.display = 'none'; // ← HIDE MESSAGE
+
+										// Get next enemy name
+										const nextEnemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
+										const nextEnemyName = characterStats[nextEnemyKey].name;
+
+										 // Create fighters first (but don't show round message yet)
 										initGame();
+
+										// Show VS screen
+										showVSScreen(nextEnemyName);
 									} else {
 										console.log('currentFight is > 7, not loading');
 									}
