@@ -1045,7 +1045,111 @@
 				showRoundMessage(); // Start Round 1
 			}, 3000);
 		}
-		
+
+		function startFinisher() {
+			console.log('Starting finisher sequence');
+
+			inFinisher = true;
+			gameInCombat = false;
+			finisherChoice = null;
+			finisherTimer = 5;
+
+			// Show finisher overlay
+			const overlay = document.getElementById('finisherOverlay');
+			const timerDiv = document.getElementById('finisherTimer');
+			overlay.style.display = 'flex';
+			timerDiv.textContent = finisherTimer;
+
+			// Start countdown
+			const countdown = setInterval(() => {
+				finisherTimer--;
+				timerDiv.textContent = finisherTimer;
+
+				if (finisherTimer <= 0 || finisherChoice !== null) {
+					clearInterval(countdown);
+					endFinisher();
+				}
+			}, 1000);
+		}
+
+		function chooseFinisher(choice) {
+			if (!inFinisher) return;
+			
+			console.log('Finisher chosen:', choice);
+			finisherChoice = choice;
+    
+			// Show which finisher was chosen
+			const overlay = document.getElementById('finisherOverlay');
+			const content = document.getElementById('finisherContent');
+    
+			let finisherName = '';
+			if (choice === 'flirty') finisherName = 'FLIRTY FINISHER!';
+			else if (choice === 'funny') finisherName = 'FUNNY FINISHER!';
+			else if (choice === 'fatal') finisherName = 'FATAL FINISHER!';
+    
+			content.innerHTML = `<h1 style="font-size: 96px;">${finisherName}</h1>`;
+    
+			// Later: Play finisher animation here
+			// For now, just wait 2 seconds
+			setTimeout(() => {
+				endFinisher();
+			}, 2000);
+		}
+
+		function endFinisher() {
+			console.log('Ending finisher');
+    
+			inFinisher = false;
+    
+			// Hide overlay
+			document.getElementById('finisherOverlay').style.display = 'none';
+    
+			// If no choice was made, just continue
+			if (finisherChoice === null) {
+				console.log('No finisher chosen, auto-continuing');
+			}
+    
+			// Continue to next fight
+			continueToNextFight();
+		}
+
+		function continueToNextFight() {
+			currentFight++;
+    
+			// Reset round tracking for next fight
+			currentRound = 1;
+			player1RoundWins = 0;
+			player2RoundWins = 0;
+    
+			if (currentFight > 7) {
+				// Beat the boss!
+				gameOver = true;
+				const gameOverDiv = document.getElementById('gameOver');
+				gameOverDiv.textContent = 'YOU WIN! GAME COMPLETE!';
+				gameOverDiv.style.display = 'block';
+			} else {
+				// Load next enemy
+				const gameOverDiv = document.getElementById('gameOver');
+				gameOverDiv.textContent = 'VICTORY!';
+				gameOverDiv.style.display = 'block';
+        
+				setTimeout(() => {
+					gameOverDiv.style.display = 'none';
+            
+					// Get next enemy name
+					const nextEnemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
+					const nextEnemyName = characterStats[nextEnemyKey].name;
+            
+					// Create fighters
+					initGame();
+            
+					// Show VS screen
+					showVSScreen(nextEnemyName);
+				}, 2000);
+			}
+		}
+
+
 		// Reset action timer when any action occurs
         function resetActionTimer() {
             lastActionTime = Date.now();
