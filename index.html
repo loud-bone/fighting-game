@@ -905,24 +905,24 @@
 			}
 
 		function showRoundMessage() {
-    	const gameOverDiv = document.getElementById('gameOver');
+    		const gameOverDiv = document.getElementById('gameOver');
     		gameOverDiv.textContent = `ROUND ${currentRound}`;
     		gameOverDiv.style.display = 'block';
 
 			console.log('Showing Round', currentRound);
     
-    	// Show "FIGHT!" after 1 second
-    	setTimeout(() => {
-        	gameOverDiv.textContent = 'FIGHT!';
-        
-        // Start the game after another 1 second
-        setTimeout(() => {
-            gameOverDiv.style.display = 'none';
-			gameStarted = true;  // NOW the game can actually start
-			console.log('Game started! Fight begins!');
-        }, 1000);
-    }, 1500);
-}
+    		// Show "FIGHT!" after 1.5 seconds
+    		setTimeout(() => {
+        		gameOverDiv.textContent = 'FIGHT!';
+			
+				// Start the game after another 1 second
+				setTimeout(() => {
+            		gameOverDiv.style.display = 'none';
+					gameStarted = true;  // NOW the game can actually start
+					console.log('Game started! Fight begins!');
+        		}, 1000);
+    		}, 1500);
+		}
 
 		function showVSScreen(enemyName) {
 			console.log('Showing VS screen:', characterStats.player.name, 'vs', enemyName);
