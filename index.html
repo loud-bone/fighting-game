@@ -1258,9 +1258,15 @@
 						console.log('Player wins round! Score:', player1RoundWins, '-', player2RoundWins);
 
 						if (player1RoundWins >= 2) {
-        					// WON THE MATCH! Move to next enemy
-        					console.log('Player wins match!');
-        					currentFight++; // Move to next fight
+        					// WON THE MATCH! Show finisher
+        					console.log('Player wins match! Starting finisher...');
+        					gameOver = true;
+
+							// Short delay, then start finisher
+							setTimeout(() => {
+								startFinisher();
+							}, 1000);
+						}
 
 							// Reset round tracking for next fight
         					currentRound = 1;
