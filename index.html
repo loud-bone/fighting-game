@@ -910,7 +910,17 @@
         window.addEventListener('keyup', (e) => {
             keys[e.key.toLowerCase()] = false;
             keys[e.key] = false;
-            
+
+			// NEW: Finisher selection
+			if (inFinisher && !finisherChoice) {
+				if (e.key.toLowerCase() === 'j') {
+					chooseFinisher('flirty');
+				} else if (e.key.toLowerCase() === 'k') {
+					chooseFinisher('funny');
+				} else if (e.key.toLowerCase() === 'l') {
+					chooseFinisher('fatal');
+				}
+			}
         });
         
         // Initialize fighters
