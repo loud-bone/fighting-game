@@ -926,25 +926,25 @@
 
 		function showVSScreen(enemyName) {
 			console.log('Showing VS screen:', characterStats.player.name, 'vs', enemyName);
-
+			
 			// Show black overlay
 			const overlay = document.getElementById('vsOverlay');
 			    console.log('Overlay element:', overlay);
-
+			
 			if (!overlay) {
 				console.error('vsOverlay element not found! Check HTML.');
 				return;
 			}
 			
 			const content = document.getElementById('vsContent');
-
+			
 			// Build VS screen content
 			content.innerHTML = `
 				<div class="character-name">${characterStats.player.name}</div>
 				<div class="vs-text">VS</div>
 				<div class="character-name">${enemyName}</div>
 			`;
-
+			
 			overlay.style.display = 'flex';
 			
 			// Hide after 3 seconds and start the fight
