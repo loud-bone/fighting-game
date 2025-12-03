@@ -348,6 +348,7 @@
         
         // Game state
         let gameOver = false;
+		let gameStarted = false;  // NEW: Track if round has actually started
         let lastActionTime = Date.now();
         let currentFight = 1; // Track which enemy (1-6 or boss)
 		let currentRound = 1; // the round we are at
@@ -868,6 +869,7 @@
 			player2RoundWins = 0;
             
             gameOver = false;
+			gameStarted = false;  // NEW: Wait for VS screen + Round announcement
             lastActionTime = Date.now();
             document.getElementById('gameOver').style.display = 'none';
 			
@@ -876,6 +878,8 @@
 		// ROUNDS
 		function startRound() {
    			console.log('Starting round', currentRound);
+
+			gameStarted = false;  // NEW: Pause game during transition
     
     		// Reset fighter positions
     		player1.x = 150;
@@ -904,16 +908,20 @@
     	const gameOverDiv = document.getElementById('gameOver');
     		gameOverDiv.textContent = `ROUND ${currentRound}`;
     		gameOverDiv.style.display = 'block';
+
+			console.log('Showing Round', currentRound);
     
     	// Show "FIGHT!" after 1 second
     	setTimeout(() => {
         	gameOverDiv.textContent = 'FIGHT!';
         
-        // Hide after another 1 second
+        // Start the game after another 1 second
         setTimeout(() => {
             gameOverDiv.style.display = 'none';
+			gameStarted = true;  // NOW the game can actually start
+			console.log('Game started! Fight begins!');
         }, 1000);
-    }, 1000);
+    }, 1500);
 }
 
 		function showVSScreen(enemyName) {
@@ -1000,7 +1008,7 @@
             ctx.stroke();
 
 			// Wait for game to start
-			if (!player1 || !player2) {
+			if (!player1 || !player2 || !gameStarted) {
 				requestAnimationFrame(gameLoop);
 				return;
             }
