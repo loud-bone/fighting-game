@@ -264,6 +264,74 @@
     		align-items: center;
 		}
 
+		#finisherOverlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: rgba(0, 0, 0, 0.9);
+			z-index: 9999;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		#finisherContent {
+			font-size: 72px;
+			color: #ff0000;
+			text-shadow: 6px 6px 12px rgba(255,0,0,0.8);
+			margin-bottom: 50px;
+		}
+
+		.finisher-options {
+			display: flex;
+			gap: 50px;
+			justify-content: center;
+			margin: 50px 0;
+		}
+
+		.finisher-option {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 20px;
+			padding: 30px;
+			background: rgba(255,255,255,0.1);
+			border: 3px solid #FFD700;
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+
+		.finisher-option:hover {
+			background: rgba(255,215,0,0.2);
+			transform: scale(1.05);
+		}
+		
+		.finisher-option .key {
+			font-size: 48px;
+			color: #FFD700;
+			font-weight: bold;
+		}
+
+		.finisher-option .name {
+			font-size: 24px;
+			color: white;
+		}
+
+		#finisherTimer {
+			font-size: 96px;
+			color: #ff0000;
+			margin-top: 50px;
+			animation: pulse 1s infinite;
+		}
+
+		@keyframes pulse {
+			0%, 100% { opacity: 1; transform: scale(1); }
+			50% { opacity: 0.7; transform: scale(1.1); }
+		}
+
 		#vsContent {
    			text-align: center;
     		color: white;
@@ -321,7 +389,28 @@
 	<div id="vsOverlay" style="display: none;">
 		<div id="vsContent"></div>
 	</div>
-    
+	
+	<div id="finisherOverlay" style="display: none;">
+		<div id="finisherContent">
+			<h1>FINISH THEM!</h1>
+			<div class="finisher-options">
+				<div class="finisher-option">
+					<span class="key">J</span>
+					<span class="name">FLIRTY</span>
+				</div>
+				<div class="finisher-option">
+					<span class="key">K</span>
+					<span class="name">FUNNY</span>
+				</div>
+				<div class="finisher-option">
+					<span class="key">L</span>
+					<span class="name">FATAL</span>
+				</div>
+			</div>
+			<div id="finisherTimer">5</div>
+		</div>
+	</div>
+	
     <div class="controls-image">
         <h3>CONTROLS</h3>
         <div class="controls-grid">
@@ -344,16 +433,19 @@
         // Game constants
         const GRAVITY = 0.8;
         const GROUND = canvas.height - 100;
-        const CALLOUT_IDLE_TIME = 30000; // 30 seconds in milliseconds
+        const CALLOUT_IDLE_TIME = 30000;
         
         // Game state
         let gameOver = false;
-		let gameInCombat = false;  // Controls whether fighters can move/attack
+		let gameInCombat = false;			// Controls whether fighters can move/attack
         let lastActionTime = Date.now();
-        let currentFight = 1; // Track which enemy (1-6 or boss)
-		let currentRound = 1; // the round we are at
+        let currentFight = 1;				// Track which enemy (1-6 or boss)
+		let currentRound = 1; 				// the round we are at
 		let player1RoundWins = 0; 
 		let player2RoundWins = 0;
+		let inFinisher = false;				// NEW: Are we in finisher mode?
+		let finisherChoice = null;			// NEW: Which finisher was chosen?
+		let finisherTimer = 0;				// NEW: Countdown timer
         
 	// Players Stats
 	const characterStats = {
