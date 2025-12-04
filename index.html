@@ -792,7 +792,7 @@
                 this.attackBox.y = this.y + this.height / 2 - height / 2;
             }
             
-            takeDamage(damage, isBlocked) {
+            takeDamage(damage, isBlocked, attackerFacingRight) {
                 if (isBlocked) {
                     damage *= 0.2; // Blocked attacks do 20% damage
 				} else {
