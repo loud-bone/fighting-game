@@ -461,6 +461,7 @@
 		let inFinisher = false;				// NEW: Are we in finisher mode?
 		let finisherChoice = null;			// NEW: Which finisher was chosen?
 		let finisherTimer = 0;				// NEW: Countdown timer
+		let finisherCountdown = null;
         
 	// Players Stats
 	const characterStats = {
@@ -1067,6 +1068,8 @@
 			}, 3000);
 		}
 
+		let finisherCountdown = null;  // NEW: Store the interval ID globally
+
 		function startFinisher() {
 			console.log('Starting finisher sequence. currentFight is:', currentFight);
 
@@ -1082,7 +1085,7 @@
 			timerDiv.textContent = finisherTimer;
 
 			// Start countdown
-			const countdown = setInterval(() => {
+			finisherCountdown = setInterval(() => {  // ← Store the interval ID
 				finisherTimer--;
 				timerDiv.textContent = finisherTimer;
 
@@ -1109,6 +1112,12 @@
 			else if (choice === 'fatal') finisherName = 'FATAL FINISHER!';
     
 			content.innerHTML = `<h1 style="font-size: 96px;">${finisherName}</h1>`;
+
+			// Clear the countdown timer so endFinisher isn't called twice
+			if (finisherCountdown) {
+				clearInterval(finisherCountdown);
+				finisherCountdown = null;
+			}
     
 			// Later: Play finisher animation here
 			// For now, just wait 2 seconds
