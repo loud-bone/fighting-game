@@ -1068,7 +1068,7 @@
 		}
 
 		function startFinisher() {
-			console.log('Starting finisher sequence');
+			console.log('Starting finisher sequence. currentFight is:', currentFight);
 
 			inFinisher = true;
 			gameInCombat = false;
@@ -1135,7 +1135,9 @@
 		}
 
 		function continueToNextFight() {
+			console.log('continueToNextFight called. currentFight BEFORE increment:', currentFight);
 			currentFight++;
+			console.log('continueToNextFight called. currentFight AFTER increment:', currentFight);
     
 			// Reset round tracking for next fight
 			currentRound = 1;
