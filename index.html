@@ -1266,46 +1266,7 @@
 							setTimeout(() => {
 								startFinisher();
 							}, 1000);
-						}
-
-							// Reset round tracking for next fight
-        					currentRound = 1;
-        					player1RoundWins = 0;
-        					player2RoundWins = 0;
-							
-							if (currentFight > 7) {
-								// Beat the boss! Game complete!
-								gameOver = true;
-								endGame();
-							} else {
-								// Load next opponent
-								console.log('VICTORY!', currentFight);
-								player1.health = player1.maxHealth;  // Full heal
-								gameOver = true;
-								endGame();
-
-								setTimeout(() => {
-									console.log('setTimeout fired! currentFight is:', currentFight);
-
-									if (currentFight <= 7) {
-										console.log('Loading next fight...');
-										gameOver = false;
-
-										// Get next enemy name
-										const nextEnemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
-										const nextEnemyName = characterStats[nextEnemyKey].name;
-
-										 // Create fighters first (but don't show round message yet)
-										initGame();
-
-										// Show VS screen
-										showVSScreen(nextEnemyName);
-									} else {
-										console.log('currentFight is > 7, not loading');
-									}
-								}, 2000);
-							}
-                    	} else {
+						} else {
 							// Won the round but not the match - start next round
 							console.log('Starting next round...');
 							currentRound++;
