@@ -433,12 +433,10 @@
         // Game constants
         const GRAVITY = 0.8;
         const GROUND = canvas.height - 100;
-        const CALLOUT_IDLE_TIME = 30000;
         
         // Game state
         let gameOver = false;
 		let gameInCombat = false;			// Controls whether fighters can move/attack
-        let lastActionTime = Date.now();
         let currentFight = 1;				// Track which enemy (1-6 or boss)
 		let currentRound = 1; 				// the round we are at
 		let player1RoundWins = 0; 
@@ -550,8 +548,6 @@
 		    this.attackTimer = 0;
 		    this.attackType = '';
 		    this.blocking = false;
-		    this.isCallout = false;
-		    this.calloutTimer = 0;
 		    this.facingRight = x < canvas.width / 2;
 		    this.difficulty = stats.difficulty;
 		    this.damageMultiplier = stats.damageMultiplier || 1.0;
@@ -576,16 +572,6 @@
             update(opponent) {
                 // Update timers
                 if (this.attackTimer > 0) this.attackTimer--;
-                
-                // Update callout animation
-                if (this.isCallout) {
-                    this.calloutTimer++;
-                    if (this.calloutTimer > 60) { // Callout lasts 60 frames (1 second)
-                        this.isCallout = false;
-                        this.calloutTimer = 0;
-                    }
-                    return; // Can't do anything during callout
-                }
                 
                 // Face opponent
                 this.facingRight = this.x < opponent.x;
@@ -664,11 +650,11 @@
                 
                 const distance = Math.abs(this.x - opponent.x);
                 const difficultySettings = {
-			easy: { thinkSpeed: 20, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
-			medium: { thinkSpeed: 18, blockChance: 0.4, attackRange: 100, aggression: 0.7 },
-			hard: { thinkSpeed: 15, blockChance: 0.6, attackRange: 150, aggression: 0.9 },
-			boss: { thinkSpeed: 5, blockChance: 0.8, attackRange: 180, aggression: 1.0 }
-                };
+					easy: { thinkSpeed: 20, blockChance: 0.1, attackRange: 80, aggression: 0.3 },
+					medium: { thinkSpeed: 18, blockChance: 0.4, attackRange: 100, aggression: 0.7 },
+					hard: { thinkSpeed: 15, blockChance: 0.6, attackRange: 150, aggression: 0.9 },
+					boss: { thinkSpeed: 5, blockChance: 0.8, attackRange: 180, aggression: 1.0 }
+				};
                 
                 const settings = difficultySettings[this.difficulty];
                 
@@ -783,11 +769,6 @@
                 if (this.health < 0) this.health = 0;
             }
             
-            triggerCallout() {
-                this.isCallout = true;
-                this.calloutTimer = 0;
-            }
-            
             draw() {
                 // Draw fighter body
                 ctx.fillStyle = this.color;
@@ -804,20 +785,6 @@
                 const eyeOffset = this.facingRight ? 5 : -5;
                 
                 if (this.isCallout) {
-                    // Animated callout eyes - wider/excited
-                    ctx.fillRect(this.x + this.width / 2 - 10 + eyeOffset, this.y + 15, 5, 6);
-                    ctx.fillRect(this.x + this.width / 2 + 5 + eyeOffset, this.y + 15, 5, 6);
-                    
-                    // Draw mouth - open/shouting
-                    ctx.beginPath();
-                    ctx.arc(this.x + this.width / 2 + eyeOffset, this.y + 28, 4, 0, Math.PI);
-                    ctx.fill();
-                    
-                    // Add exclamation mark above head
-                    ctx.fillStyle = '#FFD700';
-                    ctx.font = 'bold 24px Arial';
-                    ctx.fillText('!', this.x + this.width / 2 - 5, this.y - 10);
-                } else {
                     // Normal eyes
                     ctx.fillRect(this.x + this.width / 2 - 8 + eyeOffset, this.y + 15, 4, 4);
                     ctx.fillRect(this.x + this.width / 2 + 4 + eyeOffset, this.y + 15, 4, 4);
@@ -1158,15 +1125,6 @@
 				}, 3000);
 			}
 		}
-
-
-		// Reset action timer when any action occurs
-        function resetActionTimer() {
-            lastActionTime = Date.now();
-            // Exit callout state if active
-            player1.isCallout = false;
-            player2.isCallout = false;
-        }
         
         // Check collision between attack and opponent
         function checkCollision(attacker, defender) {
@@ -1220,23 +1178,6 @@
             }
             
             if (!gameOver && gameInCombat) {
-                // Check for callout trigger (30 seconds of inactivity)
-                const timeSinceAction = Date.now() - lastActionTime;
-                if (timeSinceAction >= CALLOUT_IDLE_TIME && !player1.isCallout && !player2.isCallout) {
-                    player1.triggerCallout();
-                    player2.triggerCallout();
-                }
-                
-                // Detect if any action occurred this frame
-                const anyMovement = player1.velocityX !== 0 || player1.velocityY !== 0 || 
-                                   player2.velocityX !== 0 || player2.velocityY !== 0;
-                const anyAttack = player1.attacking || player2.attacking;
-                const anyBlock = player1.blocking || player2.blocking;
-                
-                if (anyMovement || anyAttack || anyBlock) {
-                    resetActionTimer();
-                }
-                
                 // Update fighters
                 player1.update(player2);
                 player2.update(player1);
@@ -1250,7 +1191,6 @@
                     
                     player2.takeDamage(damage, player2.blocking);
                     player1.attackBox.width = 0; // Hit detected, remove hitbox
-                    resetActionTimer(); // Reset idle timer on hit
                     
                     if (player2.health <= 0) {
 						// Player won the round!
@@ -1292,7 +1232,6 @@
                     
                     player1.takeDamage(damage, player1.blocking);
                     player2.attackBox.width = 0;
-                    resetActionTimer(); // Reset idle timer on hit
                     
                     if (player1.health <= 0) {
 						// AI won the round!
