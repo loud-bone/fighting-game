@@ -635,7 +635,7 @@
                 // Attack logic
                 if (!this.attacking && this.attackTimer <= 0 && !this.blocking) {
                     if (keys[this.controls.special]) {
-                        this.attack('special', 8, 15, 500, 30);
+                        this.attack('special', 8, 15, 300, 30);
                     } else if (keys[this.controls.punch]) {
                         this.attack('punch', 6, 15, 35, 25);
                     } else if (keys[this.controls.kick]) {
@@ -738,7 +738,7 @@
                     if (!this.attacking && this.attackTimer <= 0) {
                         console.log('AI executing attack:', this.aiAction);
                         if (this.aiAction === 'special') {
-                            this.attack('special', 8, 15, 500, 30);
+                            this.attack('special', 8, 15, 300, 30);
                         } else if (this.aiAction === 'punch') {
                             this.attack('punch', 6, 15, 35, 25);
                         } else if (this.aiAction === 'kick') {
