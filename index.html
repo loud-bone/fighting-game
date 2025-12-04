@@ -563,6 +563,8 @@
 		    this.controls = controls;
 		    this.attacking = false;
 		    this.attackTimer = 0;
+			this.inHitstun = false;
+			this.hitstunTimer = 0;
 		    this.attackType = '';
 		    this.blocking = false;
 		    this.facingRight = x < canvas.width / 2;
@@ -589,6 +591,12 @@
             update(opponent) {
                 // Update timers
                 if (this.attackTimer > 0) this.attackTimer--;
+				if (this.hitstunTimer > 0) {
+					this.hitstunTimer--;
+					if (this.hitstunTimer === 0) {
+						this.inHitstun = false;
+					}
+				}
                 
                 // Face opponent
                 this.facingRight = this.x < opponent.x;
@@ -630,6 +638,9 @@
             }
             
             handlePlayerInput(opponent) {
+				// Can't do anything during hitstun
+				if (this.inHitstun) return;
+				
                 // Handle blocking
                 this.blocking = keys[this.controls.block];
                 
@@ -662,6 +673,9 @@
             }
             
             updateAI(opponent) {
+				// Can't do anything during hitstun
+				if (this.inHitstun) return;
+				
                 // AI thinking timer - makes decisions every 30-60 frames
                 this.aiThinkTimer++;
                 
@@ -781,8 +795,21 @@
             takeDamage(damage, isBlocked) {
                 if (isBlocked) {
                     damage *= 0.2; // Blocked attacks do 20% damage
-                }
-                this.health -= damage;
+				} else {
+					// Apply hitstun and pushback if not blocked
+					this.inHitstun = true;
+					this.hitstunTimer = 15;  // 15 frames of stun
+
+					// Pushback: Move away from attacker
+					const pushbackDistance = 30;
+					if (attackerFacingRight) {
+						this.x += pushbackDistance;  // Push right
+					} else {
+						this.x -= pushbackDistance;  // Push left
+					}
+				}
+                
+				this.health -= damage;
                 if (this.health < 0) this.health = 0;
             }
             
@@ -1229,7 +1256,7 @@
                     else if (player1.attackType === 'punch') damage = 6;
                     else if (player1.attackType === 'kick') damage = 10;
                     
-                    player2.takeDamage(damage, player2.blocking);
+                    player2.takeDamage(damage, player2.blocking, player1.facingRight);
                     player1.attackBox.width = 0; // Hit detected, remove hitbox
                     
                     if (player2.health <= 0) {
@@ -1271,7 +1298,7 @@
                     else if (player2.attackType === 'puch') damage = 6;
                     else if (player2.attackType === 'kick') damage = 10;
                     
-                    player1.takeDamage(damage, player1.blocking);
+                    player1.takeDamage(damage, player2.blocking, player1.facingRight);
                     player2.attackBox.width = 0;
                     
                     if (player1.health <= 0) {
