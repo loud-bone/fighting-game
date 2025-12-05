@@ -342,6 +342,63 @@
 			animation: pulse 1s infinite;
 		}
 
+		#pauseOverlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: rgba(0, 0, 0, 0.95);
+			z-index: 10000;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		
+		#pauseContent {
+			text-align: center;
+			color: white;
+			font-family: 'Arial Black', sans-serif;
+		}
+		
+		#pauseContent h1 {
+			font-size: 96px;
+			color: #FFD700;
+			text-shadow: 6px 6px 12px rgba(255,215,0,0.8);
+			margin-bottom: 30px;
+		}
+		
+		#pauseContent p {
+			font-size: 24px;
+			color: #aaa;
+			margin-bottom: 50px;
+		}
+		
+		#pauseContent button {
+			display: block;
+			width: 300px;
+			margin: 20px auto;
+			padding: 20px;
+			font-size: 24px;
+			font-weight: bold;
+			font-family: 'Arial Black', sans-serif;
+			background: rgba(255, 215, 0, 0.9);
+			border: 3px solid white;
+			border-radius: 10px;
+			color: #000;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		
+		#pauseContent button:hover {
+			background: rgba(255, 235, 50, 1);
+			transform: scale(1.05);
+		}
+		
+		#pauseContent button:active {
+			transform: scale(0.95);
+		}
+		
 		@keyframes pulse {
 			0%, 100% { opacity: 1; transform: scale(1); }
 			50% { opacity: 0.7; transform: scale(1.1); }
@@ -427,6 +484,21 @@
 			<div id="finisherTimer">5</div>
 		</div>
 	</div>
+
+	    </div>
+    
+    <!-- NEW: Pause menu -->
+    <div id="pauseOverlay" style="display: none;">
+        <div id="pauseContent">
+            <h1>PAUSED</h1>
+            <p>Press ESC to Resume</p>
+            <button id="resumeBtn">RESUME</button>
+            <button id="restartBtn">RESTART FIGHT</button>
+            <button id="quitBtn">QUIT TO MENU</button>
+        </div>
+    </div>
+    
+    <div class="controls-image">
 	
     <div class="controls-image">
         <h3>CONTROLS</h3>
@@ -462,6 +534,7 @@
 		let finisherChoice = null;			// NEW: Which finisher was chosen?
 		let finisherTimer = 0;				// NEW: Countdown timer
 		let finisherCountdown = null;
+		let gamePaused = false;				// NEW: Pause state
         
 	// Players Stats
 	const characterStats = {
@@ -879,7 +952,12 @@
                 console.log('Start game clicked');
                 startGame();
             });
-            
+			
+			// NEW: Pause menu button handlers
+			document.getElementById('resumeBtn').addEventListener('click', resumeGame);
+			document.getElementById('restartBtn').addEventListener('click', restartFight);
+			document.getElementById('quitBtn').addEventListener('click', quitToMenu);
+
             // Set up touch controls
             Object.keys(touchControls).forEach(btnId => {
                 const btn = document.getElementById(btnId);
@@ -915,6 +993,12 @@
         });
         
         window.addEventListener('keydown', (e) => {
+			// ESC to pause/unpause
+			if (e.key === 'Escape') {
+				togglePause();
+				return;
+			}
+			
             keys[e.key.toLowerCase()] = true;
             keys[e.key] = true;
         });
@@ -1185,6 +1269,72 @@
 				}, 3000);
 			}
 		}
+
+		function togglePause() {
+			// Can't pause during finisher or game over
+			if (inFinisher || gameOver) return;
+
+			gamePaused = !gamePaused;
+
+			const overlay = document.getElementById('pauseOverlay');
+
+			if (gamePaused) {
+				console.log('Game paused');
+				overlay.style.display = 'flex';
+			} else {
+				console.log('Game resumed');
+				overlay.style.display = 'none';
+			}
+		}
+
+		function resumeGame() {
+			if (gamePaused) {
+				togglePause();
+			}
+		}
+
+		function restartFight() {
+			console.log('Restarting fight');
+
+			// Reset round tracking
+			currentRound = 1;
+			player1RoundWins = 0;
+			player2RoundWins = 0;
+
+			// Hide pause menu
+			gamePaused = false;
+			document.getElementById('pauseOverlay').style.display = 'none';
+
+			// Restart the current fight
+			initGame();
+
+			// Show VS screen
+			const enemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
+			const enemyName = characterStats[enemyKey].name;
+			showVSScreen(enemyName);
+		}
+
+		function quitToMenu() {
+			console.log('Quitting to menu');
+
+			// Reset everything
+			currentFight = 1;
+			currentRound = 1;
+			player1RoundWins = 0;
+			player2RoundWins = 0;
+			gameOver = false;
+			gamePaused = false;
+
+			// Hide pause menu
+			document.getElementById('pauseOverlay').style.display = 'none';
+
+			// Show mode selection
+			document.getElementById('modeButtons').classList.remove('hidden');
+
+			// Clear canvas
+			player1 = null;
+			player2 = null;
+		}
         
         // Check collision between attack and opponent
         function checkCollision(attacker, defender) {
@@ -1260,7 +1410,7 @@
 				return;
             }
             
-            if (!gameOver && gameInCombat) {
+            if (!gameOver && gameInCombat && !gamePaused) {  // ← Added !gamePaused
                 // Update fighters
                 player1.update(player2);
                 player2.update(player1);
