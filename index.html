@@ -494,7 +494,7 @@
             <p>Press ESC to Resume</p>
             <button id="resumeBtn">RESUME</button>
             <button id="restartBtn">RESTART FIGHT</button>
-            <button id="quitBtn">QUIT TO MENU</button>
+            <button id="quitBtn">QUIT</button>
         </div>
     </div>
     
@@ -956,7 +956,7 @@
 			// NEW: Pause menu button handlers
 			document.getElementById('resumeBtn').addEventListener('click', resumeGame);
 			document.getElementById('restartBtn').addEventListener('click', restartFight);
-			document.getElementById('quitBtn').addEventListener('click', quitToMenu);
+			document.getElementById('quitBtn').addEventListener('click', quit);
 
             // Set up touch controls
             Object.keys(touchControls).forEach(btnId => {
@@ -1314,8 +1314,8 @@
 			showVSScreen(enemyName);
 		}
 
-		function quitToMenu() {
-			console.log('Quitting to menu');
+		function quit() {
+			console.log('Quitting');
 
 			// Reset everything
 			currentFight = 1;
