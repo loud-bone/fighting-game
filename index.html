@@ -981,6 +981,9 @@
 			currentRound = 1; 
 			player1RoundWins = 0;
 			player2RoundWins = 0;
+
+			// Clear round win indicators
+			updateRoundWins();
             
             gameOver = false;
 			gameInCombat = false;  // NEW: Wait for VS screen + Round announcement
@@ -1075,6 +1078,10 @@
 			gameInCombat = false;
 			finisherChoice = null;
 			finisherTimer = 5;
+
+			// Clear round win indicators
+			document.getElementById('player1Wins').innerHTML = '';
+			document.getElementById('player2Wins').innerHTML = '';
 
 			// Show finisher overlay
 			const overlay = document.getElementById('finisherOverlay');
