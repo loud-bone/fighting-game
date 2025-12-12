@@ -981,7 +981,10 @@
     		// Reset health
    			player1.health = player1.maxHealth;
     		player2.health = player2.maxHealth;
-    
+
+			// Update health bars immediately
+    		updateHealthBars();
+			
     		// Reset velocities
     		player1.velocityX = 0;
     		player1.velocityY = 0;
