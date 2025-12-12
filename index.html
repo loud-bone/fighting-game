@@ -150,19 +150,13 @@
         }
         
         .mode-buttons button {
-            padding: 20px 40px;
-            font-size: 24px;
-            font-weight: bold;
-            background: rgba(255, 215, 0, 0.9);
-            border: 3px solid white;
-            border-radius: 10px;
-            color: #000;
-            cursor: pointer;
+			cursor: pointer;
             touch-action: none;
+			transition: transform 0.1s;
         }
         
-        .mode-buttons button:active {
-            background: rgba(255, 235, 50, 1);
+        .mode-buttons img:active {
+            transform: scale(0.95);
         }
         
         .mode-buttons.hidden {
@@ -446,7 +440,7 @@
 </head>
 <body>
     <div class="mode-buttons" id="modeButtons">
-        <button id="btnSinglePlayer">START GAME</button>
+        <button id="btnSinglePlayer" src="images/start-1.png" alt="Start Game" style="cursor: pointer; width: 400px; height: auto;">
     </div>
     
     <div class="game-container">
@@ -931,6 +925,27 @@
         
         // Keyboard input
         const keys = {};
+
+		// Start button blinking effect
+		let blinkInterval = null;
+		let currentFrame = 1;
+
+		function startButtonBlink() {
+			const btn = document.getElementById('btnSinglePlayer');
+			if (!btn) return;
+
+			blinkInterval = setInterval(() => {
+				currentFrame = currentFrame === 1 ? 2 : 1;
+				btn.src = `images/start-${currentFrame}.png`;
+				}, 1000);
+		}
+
+		function stopButtonBlink() {
+			if (blinkInterval) {
+				clearInterval(blinkInterval);
+				blinkInterval = null;
+			}
+		}
         
         // Touch controls mapping
         const touchControls = {
@@ -948,6 +963,42 @@
         // Mode selection buttons
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
+
+			// Start button blink
+			startButtonBlink();
+
+			const startBtn = document.getElementById('btnSinglePlayer');
+
+			// Handle click
+			startBtn.addEventListener('click', function() {
+				console.log('Start game clicked');
+				stopButtonBlink();
+				startGame();
+			});
+
+			// Handle press effect (shows start-1.png and scales down)
+			startBtn.addEventListener('mousedown', function() {
+				stopButtonBlink();
+				this.src = 'images/start-1.png';
+				this.style.transform = 'scale(0.95)';
+			});
+
+			startBtn.addEventListener('mouseup', function() {
+				this.style.transform = 'scale(1)';
+			});
+
+			// Touch support
+			startBtn.addEventListener('touchstart', function(e) {
+				e.preventDefault();
+				stopButtonBlink();
+				this.src = 'images/start-1.png';
+				this.style.transform = 'scale(0.95)';
+			});
+
+			startBtn.addEventListener('touchend', function(e) {
+				e.preventDefault();
+				this.style.transform = 'scale(1)';
+			});
             
             document.getElementById('btnSinglePlayer').addEventListener('click', function() {
                 console.log('Start game clicked');
