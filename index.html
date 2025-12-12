@@ -1027,28 +1027,59 @@
 			inFinisher = true;
 			gameInCombat = false;
 			finisherChoice = null;
-			finisherTimer = 5;
 
 			// Clear round win indicators
 			document.getElementById('player1Wins').innerHTML = '';
 			document.getElementById('player2Wins').innerHTML = '';
 
 			// Show finisher overlay
-			const overlay = document.getElementById('finisherOverlay');
-			const timerDiv = document.getElementById('finisherTimer');
-			overlay.style.display = 'flex';
-			timerDiv.textContent = finisherTimer;
+			document.getElementById('finisherOverlay');
+			
+			// Show "FINISH THEM!" text (same style as round announcements)
+			const gameOverDiv = document.getElementById('gameOver');
+			gameOverDiv.textContent = 'FINISH THEM!';
+			gameOverDiv.style.display = 'block';
 
-			// Start countdown
-			finisherCountdown = setInterval(() => {  // ← Store the interval ID
-				finisherTimer--;
-				timerDiv.textContent = finisherTimer;
+			// After 1.5 seconds, show finisher options
+			setTimeout(() => {
+				gameOverDiv.style.display = 'none';
+				showFinisherOptions();
+			}, 1500);
+		}
 
-				if (finisherTimer <= 0 || finisherChoice !== null) {
-					clearInterval(countdown);
-					endFinisher();
-				}
-			}, 3000);
+		function showFinisherOptions() {
+			// Create finisher options container
+			const optionsDiv = document.createElement('div');
+			optionsDiv.id = 'finisherOptions';
+			optionsDiv.style.cssText = `
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				display: flex;
+				gap: 50px;
+				z-index: 10001;
+			`;
+
+			// Add three finisher images
+			const finishers = ['flirty', 'funny', 'fatal'];
+			finishers.forEach(type => {
+				const img = document.createElement('img');
+				img.src = `images/finisher-${type}.png`;
+				img.alt = type.toUpperCase();
+				img.style.cssText = `
+					width: 200px;
+					height: auto;
+					cursor: pointer;
+					transition: transform 0.2s;
+				`;
+				img.onmouseover = () => img.style.transform = 'scale(1.1)';
+				img.onmouseout = () => img.style.transform = 'scale(1)';
+				img.onclick = () => chooseFinisher(type);
+				optionsDiv.appendChild(img);
+			});
+
+			document.body.appendChild(optionsDiv);
 		}
 
 		function chooseFinisher(choice) {
@@ -1056,29 +1087,35 @@
 			
 			console.log('Finisher chosen:', choice);
 			finisherChoice = choice;
-    
-			// Show which finisher was chosen
-			const overlay = document.getElementById('finisherOverlay');
-			const content = document.getElementById('finisherContent');
-    
+			
+			// Remove finisher options
+			const optionsDiv = document.getElementById('finisherOptions');
+			if (optionsDiv) optionsDiv.remove();
+			
+			// Hide grey overlay
+			document.getElementById('finisherOverlay').style.display = 'none';
+			
+			// Show finisher name announcement
 			let finisherName = '';
-			if (choice === 'flirty') finisherName = 'FLIRTY FINISHER!';
-			else if (choice === 'funny') finisherName = 'FUNNY FINISHER!';
-			else if (choice === 'fatal') finisherName = 'FATAL FINISHER!';
-    
-			content.innerHTML = `<h1 style="font-size: 96px;">${finisherName}</h1>`;
+			if (choice === 'flirty') finisherName = 'FLIRTY!';
+			else if (choice === 'funny') finisherName = 'FUNNY!';
+			else if (choice === 'fatal') finisherName = 'FATAL!';
+			
+			const gameOverDiv = document.getElementById('gameOver');
+			gameOverDiv.textContent = finisherName;
+			gameOverDiv.style.display = 'block';
 
-			// Clear the countdown timer so endFinisher isn't called twice
-			if (finisherCountdown) {
-				clearInterval(finisherCountdown);
-				finisherCountdown = null;
-			}
+			// TODO: Play finisher animation here (step 6)
+			// TODO: Play enemy reaction (step 6)
     
-			// Later: Play finisher animation here
-			// For now, just wait 2 seconds
+			// After 2 seconds, show victory
 			setTimeout(() => {
-				endFinisher();
-			}, 3000);
+				gameOverDiv.textContent = 'VICTORY!';
+				// After another 2 seconds, continue to next fight
+				setTimeout(() => {
+					endFinisher();
+				}, 2000);
+			}, 2000);
 		}
 
 		function endFinisher() {
@@ -1086,14 +1123,14 @@
     
 			inFinisher = false;
     
-			// Hide overlay
+			// Hide overlays and text
 			document.getElementById('finisherOverlay').style.display = 'none';
-    
-			// If no choice was made, just continue
-			if (finisherChoice === null) {
-				console.log('No finisher chosen, auto-continuing');
-			}
-    
+			document.getElementById('gameOver').style.display = 'none';
+
+			// Remove options if still present
+			const optionsDiv = document.getElementById('finisherOptions');
+			if (optionsDiv) optionsDiv.remove();
+			
 			// Continue to next fight
 			continueToNextFight();
 		}
