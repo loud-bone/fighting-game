@@ -29,6 +29,7 @@
             width: 100%;
             max-width: 1080px;
             margin: 0 auto;
+			display: none; /* Hidden until game starts */
         }
         
         #gameCanvas {
@@ -140,7 +141,7 @@
         
         .mode-buttons {
             position: fixed;
-            top: 50%;
+            top: 80%;
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
@@ -1090,6 +1091,7 @@
             console.log('Starting game');
             document.getElementById('modeButtons').classList.add('hidden');
 			document.getElementById('startVideo').style.display = 'none';
+			document.querySelector('.game-container').style.display = 'block';
             initGame();
 
 			// Show first VS screen
@@ -1390,8 +1392,9 @@
 			gameOver = false;
 			gamePaused = false;
 
-			// Hide pause menu
+			// Hide pause menu and game
 			document.getElementById('pauseOverlay').style.display = 'none';
+			document.querySelector('.game-container').style.display = 'none';
 
 			// Show mode selection
 			document.getElementById('modeButtons').classList.remove('hidden');
