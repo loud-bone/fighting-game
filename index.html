@@ -18,10 +18,10 @@
             align-items: center;
             min-height: 100vh;
             background: #000000;
-            font-family: "Honk", sans-serif;
+            font-family: "Arial Black", sans-serif;
             overflow-x: hidden;
             padding-top: 10px;
-            padding-bottom: 200px; /* Space for controls */
+            padding-bottom: 20px;
         }
         
         .game-container {
@@ -50,12 +50,6 @@
             flex-direction: column;
             gap: 20px;
             z-index: 999;
-        }
-        
-        .mode-buttons button {
-			cursor: pointer;
-            touch-action: none;
-			transition: transform 0.1s;
         }
         
         .mode-buttons img:active {
@@ -123,17 +117,6 @@
 			pointer-events: none;
 			z-index: 10;
 		}
-        
-        @media (min-width: 600px) {
-            .player-name {
-                font-size: 24px;
-            }
-            .health-bar-container {
-                width: 300px;
-                height: 30px;
-                border: 3px solid #000;
-            }
-        }
         
         .health-bar {
             height: 100%;
@@ -421,10 +404,7 @@
     </div>
     
     <div class="controls-image">
-	
-    <div class="controls-image">
         <img src="images/controls.png" alt="Game Controls" style="width: 100%; max-width: 600px; display: block; margin: 20px auto;">
-        </div>
     </div>
 
     <script>
@@ -864,19 +844,6 @@
 			}
 		}
         
-        // Touch controls mapping
-        const touchControls = {
-            btnUp: 'w',
-            btnLeft: 'a',
-            btnRight: 'd',
-            btnDown: 's',
-            btnHighPunch: 'g',
-            btnLowPunch: 'h',
-            btnHighKick: 'b',
-            btnLowKick: 'n',
-            btnBlock: 'f'
-        };
-        
         // Mode selection buttons
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
@@ -906,57 +873,11 @@
 			startBtn.addEventListener('mouseup', function() {
 				this.style.transform = 'scale(1)';
 			});
-
-			// Touch support
-			startBtn.addEventListener('touchstart', function(e) {
-				e.preventDefault();
-				stopButtonBlink();
-				this.src = 'images/start-1.png';
-				this.style.transform = 'scale(0.95)';
-			});
-
-			startBtn.addEventListener('touchend', function(e) {
-				e.preventDefault();
-				this.style.transform = 'scale(1)';
-			});
 			
 			// NEW: Pause menu button handlers
 			document.getElementById('resumeBtn').addEventListener('click', resumeGame);
 			document.getElementById('restartBtn').addEventListener('click', restartFight);
 			document.getElementById('quitBtn').addEventListener('click', quit);
-
-            // Set up touch controls
-            Object.keys(touchControls).forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (!btn) {
-                    console.error('Button not found:', btnId);
-                    return;
-                }
-                const key = touchControls[btnId];
-                
-                btn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    keys[key] = true;
-                });
-                
-                btn.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    keys[key] = false;
-                });
-                
-                // Also support mouse for testing on desktop
-                btn.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    keys[key] = true;
-                });
-                
-                btn.addEventListener('mouseup', (e) => {
-                    e.preventDefault();
-                    keys[key] = false;
-                });
-            });
-            
-            console.log('Controls setup complete');
         });
         
         window.addEventListener('keydown', (e) => {
