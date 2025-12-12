@@ -162,6 +162,17 @@
         .mode-buttons.hidden {
             display: none;
         }
+
+		#startVideo {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 1024px;
+			height: 576px;
+			object-fit: cover;
+			z-index: 998;
+		}
         
         .ui-container {
             position: absolute;
@@ -439,6 +450,10 @@
     </style>
 </head>
 <body>
+    <video id="startVideo" autoplay loop muted playsinline style="display: none;">
+        <source src="videos/title.loop.mp4" type="video/mp4">
+    </video>
+	
     <div class="mode-buttons" id="modeButtons">
         <img id="btnSinglePlayer" src="images/start-1.png" alt="Start Game" style="cursor: pointer; width: 400px; height: auto;">
     </div>
@@ -964,6 +979,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
 
+			// Show video background
+			document.getElementById('startVideo').style.display = 'block';
+			
 			// Start button blink
 			startButtonBlink();
 
@@ -1072,6 +1090,7 @@
         function startGame() {
             console.log('Starting game');
             document.getElementById('modeButtons').classList.add('hidden');
+			document.getElementById('startVideo').style.display = 'none';
             initGame();
 
 			// Show first VS screen
@@ -1377,6 +1396,8 @@
 
 			// Show mode selection
 			document.getElementById('modeButtons').classList.remove('hidden');
+			document.getElementById('startVideo').style.display = 'block';
+			startButtonBlink();
 
 			// Clear canvas
 			player1 = null;
