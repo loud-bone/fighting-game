@@ -166,6 +166,18 @@
 			z-index: 10000;
         }
 
+		#announcementVideo {
+			position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1024px;
+            height: 576px;
+            object-fit: contain;
+            z-index: 10001;
+		}
+		
+
 		#vsOverlay {
     		position: fixed;
     		top: 0;
@@ -349,6 +361,11 @@
         <div class="game-over" id="gameOver"></div>
     </div>
 
+	<!-- Announcement video overlay -->
+	<video id="announcementVideo" style="display: none;" playsinline>
+		<source src="" type="video/webm">
+	</video>
+	
 	<div id="vsOverlay" style="display: none;">
 		<div id="vsContent"></div>
 	</div>
@@ -806,7 +823,28 @@
 				blinkInterval = null;
 			}
 		}
-        
+
+		// Play announcement video
+		function playAnnouncement(videoName, callback) {
+			const video = document.getElementById('announcementVideo');
+            const source = video.querySelector('source');
+
+			// Set video source
+            source.src = `videos/${videoName}.webm`;
+            video.load();
+
+			// Show and play video
+            video.style.display = 'block';
+            video.play();
+
+			// Hide when video ends
+            video.onended = function() {
+                video.style.display = 'none';
+                if (callback) callback();
+            };
+		}
+
+		
         // Mode selection buttons
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
@@ -962,23 +1000,17 @@
 			}
 
 		function showRoundMessage() {
-    		const gameOverDiv = document.getElementById('gameOver');
-    		gameOverDiv.textContent = `ROUND ${currentRound}`;
-    		gameOverDiv.style.display = 'block';
-
 			console.log('Showing Round', currentRound);
     
-    		// Show "FIGHT!" after 1.5 seconds
-    		setTimeout(() => {
-        		gameOverDiv.textContent = 'FIGHT!';
-			
-				// Start the game after another 1 second
-				setTimeout(() => {
-            		gameOverDiv.style.display = 'none';
-					gameInCombat = true;  // NOW the game can actually start
+    		// Show round number video
+    		playAnnouncement(`round-${currentRound}`, () => {
+        		// After round video, show "FIGHT!"
+        		playAnnouncement('fight', () => {
+            		// After fight video, start combat
+					gameInCombat = true;
 					console.log('Game started! Fight begins!');
-        		}, 1000);
-    		}, 1500);
+        		});
+    		});
 		}
 
 		function showVSScreen(enemyName) {
@@ -1025,14 +1057,8 @@
 			// Show finisher overlay
 			document.getElementById('finisherOverlay').style.display = 'flex';
 			
-			// Show "FINISH THEM!" text (same style as round announcements)
-			const gameOverDiv = document.getElementById('gameOver');
-			gameOverDiv.textContent = 'FINISH THEM!';
-			gameOverDiv.style.display = 'block';
-
-			// After 1.5 seconds, show finisher options
-			setTimeout(() => {
-				gameOverDiv.style.display = 'none';
+			// Show "FINISHER!" video
+			playAnnouncement('finisher', () => {
 				showFinisherOptions();
 			}, 1500);
 		}
@@ -1085,27 +1111,17 @@
 			// Hide grey overlay
 			document.getElementById('finisherOverlay').style.display = 'none';
 			
-			// Show finisher name announcement
-			let finisherName = '';
-			if (choice === 'flirty') finisherName = 'FLIRTY!';
-			else if (choice === 'funny') finisherName = 'FUNNY!';
-			else if (choice === 'fatal') finisherName = 'FATAL!';
+			// Show finisher choice video
+			playAnnouncement(choice, () => {
 			
-			const gameOverDiv = document.getElementById('gameOver');
-			gameOverDiv.textContent = finisherName;
-			gameOverDiv.style.display = 'block';
-
 			// TODO: Play finisher animation here (step 6)
 			// TODO: Play enemy reaction (step 6)
     
-			// After 2 seconds, show victory
-			setTimeout(() => {
-				gameOverDiv.textContent = 'VICTORY!';
-				// After another 2 seconds, continue to next fight
-				setTimeout(() => {
+			// After finisher, show victory
+				playAnnouncement('victory', () => {
 					endFinisher();
-				}, 2000);
-			}, 2000);
+				});
+			});
 		}
 
 		function endFinisher() {
@@ -1142,14 +1158,8 @@
 				gameOverDiv.textContent = 'YOU WIN! GAME COMPLETE!';
 				gameOverDiv.style.display = 'block';
 			} else {
-				// Load next enemy
-				const gameOverDiv = document.getElementById('gameOver');
-				gameOverDiv.textContent = 'VICTORY!';
-				gameOverDiv.style.display = 'block';
-        
-				setTimeout(() => {
-					gameOverDiv.style.display = 'none';
-            
+				// Load next enemy - show victory video
+				playAnnouncement('victory', () => {
 					// Get next enemy name
 					const nextEnemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
 					const nextEnemyName = characterStats[nextEnemyKey].name;
@@ -1162,7 +1172,7 @@
             
 					// Show VS screen
 					showVSScreen(nextEnemyName);
-				}, 3000);
+				});
 			}
 		}
 
@@ -1350,11 +1360,7 @@
 							gameOver = true;
 
 							// Show round result
-							const gameOverDiv = document.getElementById('gameOver');
-							gameOverDiv.textContent = 'WINNER!';
-							gameOverDiv.style.display = 'block';
-
-							setTimeout(() => {
+							playAnnouncement('you-win', () => {
 								startRound();
 							}, 2000);
 						}
@@ -1389,11 +1395,7 @@
 							gameOver = true;
 
 							// Show round result
-							const gameOverDiv = document.getElementById('gameOver');
-							gameOverDiv.textContent = 'LOSER!';
-							gameOverDiv.style.display = 'block';
-
-							setTimeout(() => {
+							playAnnouncement('you-loose', () => {
 								startRound();
 							}, 2000);
 						}
@@ -1412,17 +1414,16 @@
         }
         
         function endGame() {
-            const gameOverDiv = document.getElementById('gameOver');
-            
             if (currentFight > 7 && player1.health > 0) {
+                // Game complete - will be replaced with full animation/credits later
+                const gameOverDiv = document.getElementById('gameOver');
                 gameOverDiv.textContent = 'GAME COMPLETE!';
+                gameOverDiv.style.display = 'block';
             } else if (player1.health <= 0) {
-                gameOverDiv.textContent = 'YOU LOSE!';
+                playAnnouncement('you-loose');
             } else {
-                gameOverDiv.textContent = 'VICTORY!';
+                playAnnouncement('victory');
             }
-            
-            gameOverDiv.style.display = 'block';
         }
         // Start game loop (but don't init yet - wait for button click)
 		gameLoop();
