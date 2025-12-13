@@ -154,8 +154,8 @@
 
         
         .game-over {
-            position: absolute;
-            top: 20%;
+            position: fixed;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 72px;
@@ -163,8 +163,7 @@
             text-shadow: 4px 4px 8px rgba(0,0,0,0.9);
             display: none;
             animation: fadeIn 0.75s;
-			animation: fadeOut 0.5s;
-
+			z-index: 10000;
         }
 
 		#vsOverlay {
