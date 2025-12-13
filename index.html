@@ -267,28 +267,20 @@
 			margin-bottom: 50px;
 		}
 		
-		#pauseContent button {
+		#pauseContent img {
 			display: block;
 			width: 300px;
+			height: auto;
 			margin: 20px auto;
-			padding: 20px;
-			font-size: 24px;
-			font-weight: bold;
-			font-family: 'Arial Black', sans-serif;
-			background: rgba(255, 215, 0, 0.9);
-			border: 3px solid white;
-			border-radius: 10px;
-			color: #000;
 			cursor: pointer;
-			transition: all 0.3s;
+			transition: transform 0.2s;
 		}
 		
-		#pauseContent button:hover {
-			background: rgba(255, 235, 50, 1);
+		#pauseContent img:hover {
 			transform: scale(1.05);
 		}
 		
-		#pauseContent button:active {
+		#pauseContent img:active {
 			transform: scale(0.95);
 		}
 		
@@ -368,9 +360,9 @@
         <div id="pauseContent">
             <h1>PAUSED</h1>
             <p>Press ESC to Resume</p>
-            <button id="resumeBtn">RESUME</button>
-            <button id="restartBtn">RESTART FIGHT</button>
-            <button id="quitBtn">QUIT</button>
+            <img id="resumeBtn" src="images/button-resume.png" alt="Resume" style="cursor: pointer;">
+            <img id="restartBtn" src="images/button-restart.png" alt="Restart Fight" style="cursor: pointer;">
+            <img id="quitBtn" src="images/button-quit.png" alt="Quit" style="cursor: pointer;">
         </div>
     </div>
     
