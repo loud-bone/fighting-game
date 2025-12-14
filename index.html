@@ -849,7 +849,7 @@
             let blinkInterval = null;
             
             // Set initial image (red)
-            img.src = `videos/${animName}-1.png`;
+            img.src = `images/${animName}-1.png`;
             img.style.display = 'block';
             img.className = 'announcement-animate';
             
@@ -862,17 +862,17 @@
                 
                 // Frames 1-5: Zoom in, stay red
                 if (frameCount <= 5) {
-                    img.src = `videos/${animName}-1.png`;
+                    img.src = `images/${animName}-1.png`;
                 }
                 // Frames 6-45: Alternate between yellow and red
                 else if (frameCount <= 45) {
                     // Start with yellow (frame 6), alternate every frame
                     currentFrame = (frameCount % 2 === 0) ? 1 : 2;
-                    img.src = `videos/${animName}-${currentFrame}.png`;
+                    img.src = `images/${animName}-${currentFrame}.png`;
                 }
                 // Frames 46-49: Zoom out, stay red
                 else if (frameCount <= 49) {
-                    img.src = `videos/${animName}-1.png`;
+                    img.src = `images/${animName}-1.png`;
                 }
                 // Animation complete
                 else {
