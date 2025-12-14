@@ -1468,9 +1468,9 @@
                 gameOverDiv.textContent = 'GAME COMPLETE!';
                 gameOverDiv.style.display = 'block';
             } else if (player1.health <= 0) {
-                ('you-lose');
+                playAnnouncement('you-lose');
             } else {
-                ('victory');
+                playAnnouncement('victory');
             }
         }
         // Start game loop (but don't init yet - wait for button click)
