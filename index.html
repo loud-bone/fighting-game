@@ -1206,21 +1206,19 @@
 				gameOverDiv.textContent = 'YOU WIN! GAME COMPLETE!';
 				gameOverDiv.style.display = 'block';
 			} else {
-				// Load next enemy - show victory video
-				playAnnouncement('victory', () => {
-					// Get next enemy name
-					const nextEnemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
-					const nextEnemyName = characterStats[nextEnemyKey].name;
+				// Load next enemy
+				// Get next enemy name
+				const nextEnemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
+				const nextEnemyName = characterStats[nextEnemyKey].name;
             
-					// Create fighters
-					initGame();
+				// Create fighters
+				initGame();
 
-					// Update health bars immediately
-					updateHealthBars();
+				// Update health bars immediately
+				updateHealthBars();
             
-					// Show VS screen
-					showVSScreen(nextEnemyName);
-				});
+				// Show VS screen
+				showVSScreen(nextEnemyName);
 			}
 		}
 
