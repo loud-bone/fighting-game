@@ -166,18 +166,35 @@
 			z-index: 10000;
         }
 
-		#announcementVideo {
+		#announcementImage {
 			position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 1024px;
-            height: 576px;
+            width: 800px;
+            height: auto;
             object-fit: contain;
             z-index: 10001;
-			background: transparent;
-            mix-blend-mode: normal;
 		}
+		
+		@keyframes announcementZoom {
+			//* Frames 1-5: Zoom in (0-10.4%) *//
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            10.4% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            
+            /* Frames 6-45: Hold at full size (10.4-93.75%) */
+            93.75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            
+            /* Frames 46-49: Zoom out (93.75-100%) */
+            95.8% { transform: translate(-50%, -50%) scale(0.75); opacity: 1; }
+            97.9% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+            99% { transform: translate(-50%, -50%) scale(0.25); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        
+        .announcement-animate {
+            animation: announcementZoom 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
 		
 
 		#vsOverlay {
@@ -363,10 +380,8 @@
         <div class="game-over" id="gameOver"></div>
     </div>
 
-	<!-- Announcement video overlay -->
-	<video id="announcementVideo" style="display: none;" playsinline>
-		<source src="" type="video/webm">
-	</video>
+	<!-- Announcement animation overlay -->
+	<img id="announcementImage" style="display: none;">
 	
 	<div id="vsOverlay" style="display: none;">
 		<div id="vsContent"></div>
@@ -826,25 +841,48 @@
 			}
 		}
 
-		// Play announcement video
-		function playAnnouncement(videoName, callback) {
-			const video = document.getElementById('announcementVideo');
-            const source = video.querySelector('source');
-
-			// Set video source
-            source.src = `videos/${videoName}.webm`;
-            video.load();
-
-			// Show and play video
-            video.style.display = 'block';
-            video.play();
-
-			// Hide when video ends
-            video.onended = function() {
-                video.style.display = 'none';
-                if (callback) callback();
-            };
-		}
+        // Play announcement animation
+        function playAnnouncement(animName, callback) {
+            const img = document.getElementById('announcementImage');
+            let currentFrame = 1;
+            let frameCount = 0;
+            let blinkInterval = null;
+            
+            // Set initial image (red)
+            img.src = `videos/${animName}-1.png`;
+            img.style.display = 'block';
+            img.className = 'announcement-animate';
+            
+            // Frame timing at 24fps = ~41.67ms per frame
+            const frameTime = 1000 / 24;
+            
+            // Start frame counter
+            const animationInterval = setInterval(() => {
+                frameCount++;
+                
+                // Frames 1-5: Zoom in, stay red
+                if (frameCount <= 5) {
+                    img.src = `videos/${animName}-1.png`;
+                }
+                // Frames 6-45: Alternate between yellow and red
+                else if (frameCount <= 45) {
+                    // Start with yellow (frame 6), alternate every frame
+                    currentFrame = (frameCount % 2 === 0) ? 1 : 2;
+                    img.src = `videos/${animName}-${currentFrame}.png`;
+                }
+                // Frames 46-49: Zoom out, stay red
+                else if (frameCount <= 49) {
+                    img.src = `videos/${animName}-1.png`;
+                }
+                // Animation complete
+                else {
+                    clearInterval(animationInterval);
+                    img.style.display = 'none';
+                    img.className = '';
+                    if (callback) callback();
+                }
+            }, frameTime);
+        }
 
 		
         // Mode selection buttons
