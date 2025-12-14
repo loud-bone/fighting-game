@@ -1408,9 +1408,9 @@
 							gameOver = true;
 
 							// Show round result
-							('you-win', () => {
+							playAnnouncement('you-win', () => {
 								startRound();
-							}, 2000);
+							});
 						}
 					}
 				}
@@ -1443,9 +1443,9 @@
 							gameOver = true;
 
 							// Show round result
-							('you-lose', () => {
+							playAnnouncement('you-lose', () => {
 								startRound();
-							}, 2000);
+							});
 						}
 					}
 				}
