@@ -26,31 +26,32 @@
         }
 		
 		#bgContainer {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 1920px;
-            height: 1080px;
-            transform: translate(-50%, -50%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
             overflow: hidden;
         }
         
         #bgVideo {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: center center;
             object-fit: cover;
         }
         
         #bgForeground {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: center center;
             object-fit: cover;
             pointer-events: none;
         }
@@ -66,19 +67,19 @@
         
         @keyframes zoomToCanvas {
             from {
-                transform: scale(0.533);  /* Start showing full 1920 width */
+                transform: translate(-50%, -50%) scale(0.533);  /* Start showing full 1920 width */
             }
             to {
-                transform: scale(1);  /* Zoom in to fill 1024 canvas */
+                transform: translate(-50%, -50%) scale(1);  /* Zoom in to 1:1 */
             }
         }
         
         @keyframes zoomToCanvasForeground {
             from {
-                transform: scale(0.52);  /* Start slightly more zoomed for parallax */
+                transform: translate(-50%, -50%) scale(0.52);  /* Start slightly wider for parallax */
             }
             to {
-                transform: scale(1.05);  /* Zoom faster than background */
+                transform: translate(-50%, -50%) scale(1.05);  /* Zoom faster than background */
             }
         }
         
@@ -978,6 +979,10 @@
             
             // Show container
             bgContainer.style.display = 'block';
+            
+            // Set initial scale (showing full 1920 width in 1024 canvas)
+            bgVideo.style.transform = 'translate(-50%, -50%) scale(0.533)';
+            
             bgVideo.play();
             
             // At 3 seconds, show Round 1 animation
@@ -1032,8 +1037,8 @@
             bgContainer.style.display = 'block';
             
             // Already zoomed in state
-            bgVideo.style.transform = 'scale(1)';
-            bgForeground.style.transform = 'scale(1.05)';
+            bgVideo.style.transform = 'translate(-50%, -50%) scale(1)';
+            bgForeground.style.transform = 'translate(-50%, -50%) scale(1.05)';
             
             // Load loop video
             videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
