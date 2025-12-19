@@ -66,34 +66,35 @@
         
         @keyframes zoomToCanvas {
             from {
-                transform: scale(1);
+                transform: scale(0.533);  /* Start showing full 1920 width */
             }
             to {
-                transform: scale(0.533);  /* 1024/1920 = 0.533 */
+                transform: scale(1);  /* Zoom in to fill 1024 canvas */
             }
         }
         
         @keyframes zoomToCanvasForeground {
             from {
-                transform: scale(1);
+                transform: scale(0.52);  /* Start slightly more zoomed for parallax */
             }
             to {
-                transform: scale(0.52);  /* Slightly faster for parallax */
+                transform: scale(1.05);  /* Zoom faster than background */
             }
         }
         
         .game-container {
-            position: relative;
-            width: 100%;
-            max-width: 1080px;
-            margin: 0 auto;
+			position: relative;
+			width: 100%;
+			max-width: 1080px;
+			margin: 0 auto;
 			display: none; /* Hidden until game starts */
+			z-index: 10;  /* Above background */
         }
         
         #gameCanvas {
             border: 5px solid #ff0000;
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 50%, #8B7355 50%, #654321 100%);
+            background: transparent;
             width: 100%;
             height: auto;
             display: block;
@@ -966,11 +967,13 @@
             const bgVideo = document.getElementById('bgVideo');
             const bgForeground = document.getElementById('bgForeground');
             const videoSource = bgVideo.querySelector('source');
-            
+
+			// Determine which background based on current fight
+			const bgNumber = currentFight;
             console.log('Starting background intro sequence');
             
             // Load intro video
-            videoSource.src = 'backgrounds/bg-1-intro.mp4';
+            videoSource.src = `backgrounds/bg-${bgNumber}-intro.mp4`;
             bgVideo.load();
             
             // Show container
@@ -991,7 +994,7 @@
                 bgVideo.classList.add('bg-zoom-in');
                 
                 // Load and show foreground with parallax zoom
-                bgForeground.src = 'backgrounds/bg-1-fg.png';
+                bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
                 bgForeground.style.display = 'block';
                 bgForeground.classList.add('fg-zoom-in');
                 
@@ -1002,7 +1005,7 @@
                         console.log('FIGHT! animation complete, starting combat');
                         
                         // Switch to loop video
-                        videoSource.src = 'backgrounds/bg-1-loop.mp4';
+                        videoSource.src = `backgrounds/bg-${bgNumber}-intro.mp4`;
                         bgVideo.load();
                         bgVideo.play();
                         
@@ -1021,22 +1024,24 @@
             const bgForeground = document.getElementById('bgForeground');
             const videoSource = bgVideo.querySelector('source');
             
-            console.log('Skipping to background loop');
+            // Determine which background
+            const bgNumber = currentFight;
+            console.log('Skipping to background loop for fight', bgNumber);
             
             // Show container
             bgContainer.style.display = 'block';
             
             // Already zoomed in state
-            bgVideo.style.transform = 'scale(0.533)';
-            bgForeground.style.transform = 'scale(0.52)';
+            bgVideo.style.transform = 'scale(1)';
+            bgForeground.style.transform = 'scale(1.05)';
             
             // Load loop video
-            videoSource.src = 'videos/bg-1-loop.mp4';
+            videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
             bgVideo.load();
             bgVideo.play();
             
             // Show foreground
-            bgForeground.src = 'images/bg-1-fg.png';
+            bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
             bgForeground.style.display = 'block';
         }
 		
