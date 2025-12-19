@@ -24,6 +24,63 @@
             padding-top: 10px;
             padding-bottom: 20px;
         }
+		
+		#bgContainer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 1920px;
+            height: 1080px;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        #bgVideo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        #bgForeground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+        
+        /* Zoom animation for intro sequence */
+        .bg-zoom-in {
+            animation: zoomToCanvas 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .fg-zoom-in {
+            animation: zoomToCanvasForeground 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        @keyframes zoomToCanvas {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(0.533);  /* 1024/1920 = 0.533 */
+            }
+        }
+        
+        @keyframes zoomToCanvasForeground {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(0.52);  /* Slightly faster for parallax */
+            }
+        }
         
         .game-container {
             position: relative;
@@ -351,6 +408,14 @@
     </style>
 </head>
 <body>
+	<!-- Background video container (hidden until game starts) -->
+	<div id="bgContainer" style="display: none;">
+		<video id="bgVideo" loop muted playsinline>
+			<source src="" type="video/mp4">
+        </video>
+        <img id="bgForeground" style="display: none;">
+    </div>
+	
     <video id="startVideo" autoplay loop muted playsinline style="display: none;">
         <source src="videos/title.loop.mp4" type="video/mp4">
     </video>
@@ -893,6 +958,88 @@
 			}, frameTime);
 		}
 		
+		// Background video control
+        let bgIntroPlayed = false;
+        
+        function playBackgroundIntro(callback) {
+            const bgContainer = document.getElementById('bgContainer');
+            const bgVideo = document.getElementById('bgVideo');
+            const bgForeground = document.getElementById('bgForeground');
+            const videoSource = bgVideo.querySelector('source');
+            
+            console.log('Starting background intro sequence');
+            
+            // Load intro video
+            videoSource.src = 'videos/bg-1-intro.mp4';
+            bgVideo.load();
+            
+            // Show container
+            bgContainer.style.display = 'block';
+            bgVideo.play();
+            
+            // At 3 seconds, show Round 1 animation
+            setTimeout(() => {
+                console.log('Showing Round 1 overlay');
+                playAnnouncement('round-1', () => {
+                    console.log('Round 1 animation complete');
+                });
+            }, 3000);
+            
+            // At 5 seconds, start zoom and load foreground
+            setTimeout(() => {
+                console.log('Starting zoom sequence');
+                bgVideo.classList.add('bg-zoom-in');
+                
+                // Load and show foreground with parallax zoom
+                bgForeground.src = 'images/bg-1-fg.png';
+                bgForeground.style.display = 'block';
+                bgForeground.classList.add('fg-zoom-in');
+                
+                // At 8 seconds (3s into zoom), show FIGHT! animation
+                setTimeout(() => {
+                    console.log('Showing FIGHT! overlay');
+                    playAnnouncement('fight', () => {
+                        console.log('FIGHT! animation complete, starting combat');
+                        
+                        // Switch to loop video
+                        videoSource.src = 'videos/bg-1-loop.mp4';
+                        bgVideo.load();
+                        bgVideo.play();
+                        
+                        // Mark intro as played
+                        bgIntroPlayed = true;
+                        
+                        if (callback) callback();
+                    });
+                }, 3000);
+            }, 5000);
+        }
+        
+        function skipToBackgroundLoop() {
+            const bgContainer = document.getElementById('bgContainer');
+            const bgVideo = document.getElementById('bgVideo');
+            const bgForeground = document.getElementById('bgForeground');
+            const videoSource = bgVideo.querySelector('source');
+            
+            console.log('Skipping to background loop');
+            
+            // Show container
+            bgContainer.style.display = 'block';
+            
+            // Already zoomed in state
+            bgVideo.style.transform = 'scale(0.533)';
+            bgForeground.style.transform = 'scale(0.52)';
+            
+            // Load loop video
+            videoSource.src = 'videos/bg-1-loop.mp4';
+            bgVideo.load();
+            bgVideo.play();
+            
+            // Show foreground
+            bgForeground.src = 'images/bg-1-fg.png';
+            bgForeground.style.display = 'block';
+        }
+		
         // Mode selection buttons
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
@@ -1050,15 +1197,27 @@
 		function showRoundMessage() {
 			console.log('Showing Round', currentRound);
     
-    		// Show round number video
-    		playAnnouncement(`round-${currentRound}`, () => {
-        		// After round video, show "FIGHT!"
-        		playAnnouncement('fight', () => {
-            		// After fight video, start combat
-					gameInCombat = true;
-					console.log('Game started! Fight begins!');
+    		// First round with intro sequence
+    		if (currentRound === 1 && !bgIntroPlayed) {
+        		playBackgroundIntro(() => {
+            		gameInCombat = true;
+            		console.log('Game started! Fight begins!');
         		});
-    		});
+    		}
+    		// Subsequent rounds - simple announcements
+    		else {
+        		if (!bgIntroPlayed) {
+            		skipToBackgroundLoop();
+            		bgIntroPlayed = true;
+        		}
+        		
+        		playAnnouncement(`round-${currentRound}`, () => {
+            		playAnnouncement('fight', () => {
+                		gameInCombat = true;
+                		console.log('Game started! Fight begins!');
+            		});
+        		});
+    		}
 		}
 
 		function showVSScreen(enemyName) {
