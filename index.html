@@ -970,7 +970,7 @@
             console.log('Starting background intro sequence');
             
             // Load intro video
-            videoSource.src = 'videos/bg-1-intro.mp4';
+            videoSource.src = 'backgrounds/bg-1-intro.mp4';
             bgVideo.load();
             
             // Show container
@@ -991,7 +991,7 @@
                 bgVideo.classList.add('bg-zoom-in');
                 
                 // Load and show foreground with parallax zoom
-                bgForeground.src = 'images/bg-1-fg.png';
+                bgForeground.src = 'backgrounds/bg-1-fg.png';
                 bgForeground.style.display = 'block';
                 bgForeground.classList.add('fg-zoom-in');
                 
@@ -1002,7 +1002,7 @@
                         console.log('FIGHT! animation complete, starting combat');
                         
                         // Switch to loop video
-                        videoSource.src = 'videos/bg-1-loop.mp4';
+                        videoSource.src = 'backgrounds/bg-1-loop.mp4';
                         bgVideo.load();
                         bgVideo.play();
                         
