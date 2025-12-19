@@ -225,6 +225,20 @@
             animation: fadeIn 0.75s;
 			z-index: 10000;
         }
+		
+		/* Characters zoom during intro */
+        .canvas-zoom {
+            animation: canvasScale 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        @keyframes canvasScale {
+            from {
+                transform: scale(0.7);  /* Start smaller */
+            }
+            to {
+                transform: scale(1);  /* Zoom to normal size */
+            }
+        }
 
 		#announcementImage {
 			position: fixed;
@@ -982,7 +996,12 @@
             
             // Set initial scale (showing full 1920 width in 1024 canvas)
             bgVideo.style.transform = 'translate(-50%, -59%) scale(0.56)';
-            
+			
+			// Show foreground immediately
+            bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
+            bgForeground.style.display = 'block';
+            bgForeground.style.transform = 'translate(-50%, -59%) scale(0.56)';
+			
             bgVideo.play();
             
             // At 3 seconds, show Round 1 animation
@@ -993,15 +1012,14 @@
                 });
             }, 1000);
             
-            // At 5 seconds, start zoom and load foreground
+            // At 5 seconds, start zoom
             setTimeout(() => {
                 console.log('Starting zoom sequence');
                 bgVideo.classList.add('bg-zoom-in');
-                
-                // Load and show foreground with parallax zoom
-                bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
-                bgForeground.style.display = 'block';
-                bgForeground.classList.add('fg-zoom-in');
+				bgForeground.classList.add('fg-zoom-in');
+				
+				// Zoom characters/canvas too
+                canvas.classList.add('canvas-zoom');
                 
                 // At 8 seconds (3s into zoom), show FIGHT! animation
                 setTimeout(() => {
@@ -1523,14 +1541,6 @@
         function gameLoop() {
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw ground line
-            ctx.strokeStyle = '#654321';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(0, GROUND);
-            ctx.lineTo(canvas.width, GROUND);
-            ctx.stroke();
 
 			// Wait for fighters to exist
 			if (!player1 || !player2) {
