@@ -981,7 +981,7 @@
             bgContainer.style.display = 'block';
             
             // Set initial scale (showing full 1920 width in 1024 canvas)
-            bgVideo.style.transform = 'translate(-50%, -50%) scale(0.533)';
+            bgVideo.style.transform = 'translate(-50%, -50%) scale(0.5)';
             
             bgVideo.play();
             
@@ -1038,7 +1038,7 @@
             
             // Already zoomed in state
             bgVideo.style.transform = 'translate(-50%, -50%) scale(1)';
-            bgForeground.style.transform = 'translate(-50%, -50%) scale(1.05)';
+            bgForeground.style.transform = 'translate(-50%, -50%) scale(0.9)';
             
             // Load loop video
             videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
