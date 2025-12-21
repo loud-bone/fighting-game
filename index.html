@@ -35,13 +35,15 @@
             overflow: hidden;
         }
 
-		#fgContainer {
+        #fgContainer {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 15;  /* Above canvas but below UI */
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            width: calc(100% - 10px);
+            height: calc(100% - 10px);
+            z-index: 15;
             overflow: hidden;
             pointer-events: none;
         }
@@ -1030,9 +1032,20 @@
                         
                         // Switch to loop video
 						console.log('🔄 SWITCHING TO LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
-                        videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
-                        bgVideo.load();
-                        bgVideo.play();
+						
+						// Fade out, switch, fade in
+                        bgVideo.style.transition = 'opacity 0.3s';
+                        bgVideo.style.opacity = '0';
+
+						setTimeout(() => {
+							videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
+							bgVideo.loop = true;  // Enable loop for the loop video
+							bgVideo.load();
+							bgVideo.onloadeddata = () => {
+								bgVideo.play();
+								bgVideo.style.opacity = '1';
+							};
+						}, 300);
                         
                         // Mark intro as played
                         bgIntroPlayed = true;
