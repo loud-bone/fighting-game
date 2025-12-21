@@ -254,6 +254,11 @@
             height: 100%;
             object-fit: contain;
         }
+		
+		.controls-image {
+            position: relative;
+            z-index: 30;  /* Above frame mask */
+        }
 
 		#announcementImage {
 			position: fixed;
@@ -1043,10 +1048,11 @@
                 bgVideo.classList.add('bg-zoom-in');
 				bgForeground.classList.add('fg-zoom-in');
                 
-                // Hide intro video completely to prevent flashing
-                bgVideo.style.opacity = '0';
+                // STOP intro video completely
+                bgVideo.pause();
+                bgVideo.style.display = 'none';
                 
-                // Switch to loop video immediately
+                // Switch to loop video
                 console.log('🔄 SWITCHING TO LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
                 videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
                 bgVideo.loop = true;
@@ -1054,8 +1060,8 @@
                 
                 // Show loop video once loaded
                 bgVideo.onloadeddata = () => {
+                    bgVideo.style.display = 'block';
                     bgVideo.play();
-                    bgVideo.style.opacity = '1';
                 };
                 
                 // At 8 seconds (3s into zoom), show FIGHT! animation
