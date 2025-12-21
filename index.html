@@ -1016,18 +1016,26 @@
                 });
             }, 3000);
 			
-			// At 5 seconds, start zoom AND switch to loop
+            // At 5 seconds, start zoom AND switch to loop
             setTimeout(() => {
                 console.log('Starting zoom sequence');
                 bgVideo.classList.add('bg-zoom-in');
 				bgForeground.classList.add('fg-zoom-in');
                 
-                // Switch to loop video immediately (no gap!)
+                // Hide intro video completely to prevent flashing
+                bgVideo.style.opacity = '0';
+                
+                // Switch to loop video immediately
                 console.log('🔄 SWITCHING TO LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
                 videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
                 bgVideo.loop = true;
                 bgVideo.load();
-                bgVideo.play();
+                
+                // Show loop video once loaded
+                bgVideo.onloadeddata = () => {
+                    bgVideo.play();
+                    bgVideo.style.opacity = '1';
+                };
                 
                 // At 8 seconds (3s into zoom), show FIGHT! animation
                 setTimeout(() => {
