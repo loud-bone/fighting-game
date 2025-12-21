@@ -36,15 +36,14 @@
         }
 
         #fgContainer {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            bottom: 5px;
-            width: calc(100% - 10px);
-            height: calc(100% - 10px);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1024px;
+            height: 576px;
             z-index: 15;
-            overflow: hidden;
+            overflow: visible;
             pointer-events: none;
         }
 		
@@ -430,11 +429,6 @@
 			<source src="" type="video/mp4">
         </video>
     </div>
-
-	    <!-- Foreground on separate layer -->
-    <div id="fgContainer" style="display: none;">
-        <img id="bgForeground" style="display: none;">
-    </div>
 	
     <video id="startVideo" autoplay loop muted playsinline style="display: none;">
         <source src="videos/title.loop.mp4" type="video/mp4">
@@ -443,7 +437,11 @@
     <div class="mode-buttons" id="modeButtons">
         <img id="btnSinglePlayer" src="images/start-1.png" alt="Start Game" style="cursor: pointer; width: 400px; height: auto;">
     </div>
-    
+    	    <!-- Foreground on separate layer -->
+    <div id="fgContainer" style="display: none;">
+        <img id="bgForeground" style="display: none;">
+    </div>
+	
     <div class="game-container">
         <canvas id="gameCanvas" width="1024" height="576"></canvas>
         <div class="ui-container">
@@ -1017,35 +1015,25 @@
                     console.log('Round 1 animation complete');
                 });
             }, 3000);
-            
-            // At 5 seconds, start zoom
+			
+			// At 5 seconds, start zoom AND switch to loop
             setTimeout(() => {
                 console.log('Starting zoom sequence');
                 bgVideo.classList.add('bg-zoom-in');
 				bgForeground.classList.add('fg-zoom-in');
+                
+                // Switch to loop video immediately (no gap!)
+                console.log('🔄 SWITCHING TO LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
+                videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
+                bgVideo.loop = true;
+                bgVideo.load();
+                bgVideo.play();
                 
                 // At 8 seconds (3s into zoom), show FIGHT! animation
                 setTimeout(() => {
                     console.log('Showing FIGHT! overlay');
                     playAnnouncement('fight', () => {
                         console.log('FIGHT! animation complete, starting combat');
-                        
-                        // Switch to loop video
-						console.log('🔄 SWITCHING TO LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
-						
-						// Fade out, switch, fade in
-                        bgVideo.style.transition = 'opacity 0.3s';
-                        bgVideo.style.opacity = '0';
-
-						setTimeout(() => {
-							videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
-							bgVideo.loop = true;  // Enable loop for the loop video
-							bgVideo.load();
-							bgVideo.onloadeddata = () => {
-								bgVideo.play();
-								bgVideo.style.opacity = '1';
-							};
-						}, 300);
                         
                         // Mark intro as played
                         bgIntroPlayed = true;
