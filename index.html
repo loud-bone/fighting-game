@@ -238,6 +238,23 @@
             animation: fadeIn 0.75s;
 			z-index: 10000;
         }
+		
+        #frameMask {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2400px;  /* Large enough to cover max zoom */
+            height: 1400px;
+            z-index: 16; /* above foreground */
+            pointer-events: none;
+        }
+        
+        #frameMask img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
 		#announcementImage {
 			position: fixed;
@@ -463,7 +480,12 @@
 
         <div class="game-over" id="gameOver"></div>
     </div>
-
+	
+	<!-- Frame mask to hide overflow -->
+    <div id="frameMask">
+        <img src="images/frame-mask.png" alt="">
+    </div>
+	
 	<!-- Announcement animation overlay -->
 	<img id="announcementImage" style="display: none;">
 	
