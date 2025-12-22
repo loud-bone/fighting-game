@@ -1131,6 +1131,11 @@
 					});
 				}, 3000);
             
+				// NEW: Lock in final foreground position after zoom completes (5 seconds)
+				setTimeout(() => {
+					bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
+					console.log('🔒 Foreground locked at final zoom position');
+				}, 5000);        
 			}, 5000);
 		}
         
