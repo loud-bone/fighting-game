@@ -28,23 +28,25 @@
 		#bgContainer {
             position: absolute;
             top: 0;
-            left: 0;
+            left: 0;   /* Will be updated by JavaScript */
             width: 100%;
             height: 100%;
             z-index: -1;
             overflow: hidden;
+			transition: left 0.1s ease-out;  /* NEW: Smooth camera movement */
         }
 
         #fgContainer {
             position: fixed;
             top: 50%;
-            left: 50%;
+            left: 50%;   /* Will be updated by JavaScript */
             transform: translate(-50%, -50%);
             width: 1024px;
             height: 576px;
             z-index: 17;
             overflow: visible;
             pointer-events: none;
+			transition: left 0.1s ease-out;  /* NEW: Smooth camera movement */
         }
 		
 		#bgIntroVideo, #bgLoopVideo {
@@ -1008,6 +1010,7 @@
 		
 		// Background video control
         let bgIntroPlayed = false;
+		let cameraX = 0;  // NEW: Current camera position (0 to 896)
 		
 		function playBackgroundIntro(callback) {
 			const bgContainer = document.getElementById('bgContainer');
@@ -1301,7 +1304,14 @@
     		player1.y = GROUND - 100;
     		player2.x = canvas.width - 200;
     		player2.y = GROUND - 100;
-    
+
+			// NEW: Reset camera to starting position
+			cameraX = 0;
+			const bgContainer = document.getElementById('bgContainer');
+			const fgContainer = document.getElementById('fgContainer');
+			if (bgContainer) bgContainer.style.left = '0px';
+			if (fgContainer) fgContainer.style.left = '0px';
+			
     		// Reset health
    			player1.health = player1.maxHealth;
     		player2.health = player2.maxHealth;
@@ -1636,7 +1646,40 @@
 				p1Wins.appendChild(coin);
 			}
 		}
-			
+
+		function updateCamera() {
+			// Don't move camera if fighters don't exist yet
+			if (!player1 || !player2) return;
+    
+			// Calculate center point between fighters (including their width for accuracy)
+			const player1Center = player1.x + (player1.width / 2);
+			const player2Center = player2.x + (player2.width / 2);
+			const midpoint = (player1Center + player2Center) / 2;
+    
+			// Calculate where camera should be to center this midpoint
+			// Canvas is 1024px, so center is at 512px
+			const targetCameraX = midpoint - 512;
+    
+			// Clamp between 0 and 896 (max pan distance)
+			// 896 = 1920 (bg width) - 1024 (canvas width)
+			cameraX = Math.max(0, Math.min(896, targetCameraX));
+    
+			// Apply camera position to background containers
+			// Negative value moves them left (creating illusion of camera moving right)
+			const bgContainer = document.getElementById('bgContainer');
+			const fgContainer = document.getElementById('fgContainer');
+    
+			if (bgContainer) {
+				bgContainer.style.left = `-${cameraX}px`;
+			}
+			if (fgContainer) {
+				fgContainer.style.left = `-${cameraX}px`;
+			}
+    
+			// Optional: Uncomment for debugging
+			// console.log('Midpoint:', midpoint, 'CameraX:', cameraX);
+		}
+		
         // Game loop
         function gameLoop() {
             // Clear canvas
@@ -1652,6 +1695,9 @@
                 // Update fighters
                 player1.update(player2);
                 player2.update(player1);
+
+				// NEW: Update camera position
+				updateCamera();
                 
                 // Check collisions
                 if (checkCollision(player1, player2)) {
