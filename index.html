@@ -1087,11 +1087,20 @@
 						bgIntroVideo.style.opacity = '0';
 						bgLoopVideo.style.opacity = '1';
                     
-						// After crossfade completes, hide intro completely
-						setTimeout(() => {
-							bgIntroVideo.style.display = 'none';
-							console.log('Intro video hidden');
-						}, 600);
+                    // After crossfade completes, hide intro completely
+                    setTimeout(() => {
+                        bgIntroVideo.style.display = 'none';
+                        console.log('Intro video hidden');
+                    }, 600);
+                    
+                    // NEW: Seamless loop handler - restart video manually before it gaps
+                    bgLoopVideo.addEventListener('timeupdate', function loopHandler() {
+                        // When video is within 0.1 seconds of end, restart it
+                        if (bgLoopVideo.currentTime >= bgLoopVideo.duration - 0.1) {
+                            bgLoopVideo.currentTime = 0;
+                            bgLoopVideo.play();
+                        }
+                    });
                     
 					}).catch(err => {
 						console.error('❌ Loop video play error:', err);
