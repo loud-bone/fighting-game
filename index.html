@@ -47,7 +47,7 @@
             pointer-events: none;
         }
 		
-        #bgVideo {
+        #bgIntroVideo, #bgLoopVideo {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -446,7 +446,10 @@
 <body>
 	<!-- Background video container (hidden until game starts) -->
 	<div id="bgContainer" style="display: none;">
-		<video id="bgVideo" playsinline>
+		<video id="bgIntroVideo" playsinline>
+			<source src="" type="video/mp4">
+        </video>
+        <video id="bgLoopVideo" loop playsinline style="display: none;">
 			<source src="" type="video/mp4">
         </video>
     </div>
@@ -1007,25 +1010,32 @@
         
         function playBackgroundIntro(callback) {
             const bgContainer = document.getElementById('bgContainer');
-            const bgVideo = document.getElementById('bgVideo');
+            const bgIntroVideo = document.getElementById('bgIntroVideo');
+            const bgLoopVideo = document.getElementById('bgLoopVideo');
             const bgForeground = document.getElementById('bgForeground');
-            const videoSource = bgVideo.querySelector('source');
+            const introSource = bgIntroVideo.querySelector('source');
+            const loopSource = bgLoopVideo.querySelector('source');
 
 			// Determine which background based on current fight
 			const bgNumber = currentFight;
             console.log('Starting background intro sequence');
             
-            // Load intro video
+            // Load BOTH videos
 			console.log('🎬 LOADING INTRO:', `backgrounds/bg-${bgNumber}-intro.mp4`);
-            videoSource.src = `backgrounds/bg-${bgNumber}-intro.mp4`;
-            bgVideo.load();
+            introSource.src = `backgrounds/bg-${bgNumber}-intro.mp4`;
+            bgIntroVideo.load();
+            
+            console.log('🎬 PRELOADING LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
+            loopSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
+            bgLoopVideo.load();
             
             // Show container
             bgContainer.style.display = 'block';
 			document.getElementById('fgContainer').style.display = 'block';
             
-            // Set initial scale
-            bgVideo.style.transform = 'translate(-50%, -59%) scale(0.56)';
+            // Set initial scale for BOTH videos
+            bgIntroVideo.style.transform = 'translate(-50%, -59%) scale(0.56)';
+            bgLoopVideo.style.transform = 'translate(-50%, -59%) scale(0.56)';
 			
 			// Show foreground immediately
             bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
@@ -1042,27 +1052,25 @@
                 });
             }, 3000);
 			
-            // At 5 seconds, start zoom AND switch to loop
+            // At 5 seconds, start zoom AND crossfade videos
             setTimeout(() => {
                 console.log('Starting zoom sequence');
-                bgVideo.classList.add('bg-zoom-in');
+                bgIntroVideo.classList.add('bg-zoom-in');
+                bgLoopVideo.classList.add('bg-zoom-in');
 				bgForeground.classList.add('fg-zoom-in');
                 
-                // STOP intro video completely
-                bgVideo.pause();
-                bgVideo.style.display = 'none';
+                // Crossfade: hide intro, show loop
+                bgIntroVideo.style.opacity = '0';
+                bgIntroVideo.style.transition = 'opacity 0.5s';
                 
-                // Switch to loop video
-                console.log('🔄 SWITCHING TO LOOP:', `backgrounds/bg-${bgNumber}-loop.mp4`);
-                videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
-                bgVideo.loop = true;
-                bgVideo.load();
+                bgLoopVideo.style.display = 'block';
+                bgLoopVideo.style.opacity = '0';
+                bgLoopVideo.play();
                 
-                // Show loop video once loaded
-                bgVideo.onloadeddata = () => {
-                    bgVideo.style.display = 'block';
-                    bgVideo.play();
-                };
+                setTimeout(() => {
+                    bgLoopVideo.style.opacity = '1';
+                    bgLoopVideo.style.transition = 'opacity 0.5s';
+                }, 100);
                 
                 // At 8 seconds (3s into zoom), show FIGHT! animation
                 setTimeout(() => {
