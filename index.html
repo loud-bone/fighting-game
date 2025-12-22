@@ -33,7 +33,6 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
-			transition: left 0.1s ease-out;  /* NEW: Smooth camera movement */
         }
 
         #fgContainer {
@@ -46,7 +45,6 @@
             z-index: 17;
             overflow: visible;
             pointer-events: none;
-			transition: left 0.1s ease-out;  /* NEW: Smooth camera movement */
         }
 		
 		#bgIntroVideo, #bgLoopVideo {
@@ -1137,38 +1135,54 @@
 				// NEW: Lock in final foreground position after zoom completes (5 seconds)
 				setTimeout(() => {
 					bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
+					bgForeground.classList.add('fg-zoom-in');
 					console.log('🔒 Foreground locked at final zoom position');
 				}, 5000);        
 			}, 5000);
 		}
         
-        function skipToBackgroundLoop() {
-            const bgContainer = document.getElementById('bgContainer');
-            const bgVideo = document.getElementById('bgVideo');
-            const bgForeground = document.getElementById('bgForeground');
-            const videoSource = bgVideo.querySelector('source');
-            
-            // Determine which background
-            const bgNumber = currentFight;
-            console.log('Skipping to background loop for fight', bgNumber);
-            
-            // Show container
-            bgContainer.style.display = 'block';
+		function skipToBackgroundLoop() {
+			const bgContainer = document.getElementById('bgContainer');
+			const bgIntroVideo = document.getElementById('bgIntroVideo');
+			const bgLoopVideo = document.getElementById('bgLoopVideo');
+			const bgForeground = document.getElementById('bgForeground');
+			const loopSource = bgLoopVideo.querySelector('source');
+    
+			// Determine which background
+			const bgNumber = currentFight;
+			console.log('Skipping to background loop for fight', bgNumber);
+    
+			// Show containers
+			bgContainer.style.display = 'block';
 			document.getElementById('fgContainer').style.display = 'block';
-            
-            // Already zoomed in state
-            bgVideo.style.transform = 'translate(-50%, -59%) scale(1)';
-            bgForeground.style.transform = 'translate(-50%, -59%) scale(0.9)';
-            
-            // Load loop video
-            videoSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
-            bgVideo.load();
-            bgVideo.play();
-            
-            // Show foreground
-            bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
-            bgForeground.style.display = 'block';
-        }
+    
+			// Hide intro video, show loop video
+			bgIntroVideo.style.display = 'none';
+			bgLoopVideo.style.display = 'block';
+    
+			// Already zoomed in state (end of zoom animation)
+			bgLoopVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
+			bgLoopVideo.classList.add('bg-zoom-in'); // Mark as zoomed
+    
+			// Load and play loop video
+			console.log('🎬 LOADING LOOP for fight', bgNumber);
+			loopSource.src = `backgrounds/bg-${bgNumber}-loop.mp4`;
+			bgLoopVideo.load();
+    
+			// Wait for video to be ready
+			bgLoopVideo.addEventListener('canplaythrough', function onReady() {
+				bgLoopVideo.removeEventListener('canplaythrough', onReady);
+				console.log('✅ Loop video ready for fight', bgNumber);
+				bgLoopVideo.play();
+			}, { once: true });
+    
+			// Show foreground
+			console.log('🎬 LOADING FOREGROUND for fight', bgNumber);
+			bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
+			bgForeground.style.display = 'block';
+			bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
+			bgForeground.classList.add('fg-zoom-in'); // Mark as zoomed
+		}
 		
         // Mode selection buttons
         document.addEventListener('DOMContentLoaded', function() {
@@ -1305,12 +1319,9 @@
     		player2.x = canvas.width - 200;
     		player2.y = GROUND - 100;
 
-			// NEW: Reset camera to starting position
+			// Reset camera to starting position
 			cameraX = 0;
-			const bgContainer = document.getElementById('bgContainer');
-			const fgContainer = document.getElementById('fgContainer');
-			if (bgContainer) bgContainer.style.left = '0px';
-			if (fgContainer) fgContainer.style.left = '0px';
+			// Camera position will be applied by updateCamera() in game loop
 			
     		// Reset health
    			player1.health = player1.maxHealth;
@@ -1651,33 +1662,49 @@
 			// Don't move camera if fighters don't exist yet
 			if (!player1 || !player2) return;
     
-			// Calculate center point between fighters (including their width for accuracy)
+			// Calculate center point between fighters
 			const player1Center = player1.x + (player1.width / 2);
 			const player2Center = player2.x + (player2.width / 2);
 			const midpoint = (player1Center + player2Center) / 2;
     
 			// Calculate where camera should be to center this midpoint
-			// Canvas is 1024px, so center is at 512px
 			const targetCameraX = midpoint - 512;
     
-			// Clamp between 0 and 896 (max pan distance)
-			// 896 = 1920 (bg width) - 1024 (canvas width)
+			// Clamp between 0 and 896
 			cameraX = Math.max(0, Math.min(896, targetCameraX));
     
-			// Apply camera position to background containers
-			// Negative value moves them left (creating illusion of camera moving right)
-			const bgContainer = document.getElementById('bgContainer');
-			const fgContainer = document.getElementById('fgContainer');
+			// Get video and foreground elements
+			const bgIntroVideo = document.getElementById('bgIntroVideo');
+			const bgLoopVideo = document.getElementById('bgLoopVideo');
+			const bgForeground = document.getElementById('bgForeground');
     
-			if (bgContainer) {
-				bgContainer.style.left = `-${cameraX}px`;
-			}
-			if (fgContainer) {
-				fgContainer.style.left = `-${cameraX}px`;
+    
+			// Apply camera offset to background videos (add translateX to existing transform)
+			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
+				// Check if it's zoomed (has bg-zoom-in class) or wide
+				if (bgIntroVideo.classList.contains('bg-zoom-in')) {
+					bgIntroVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
+				} else {
+					bgIntroVideo.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
+				}
 			}
     
-			// Optional: Uncomment for debugging
-			// console.log('Midpoint:', midpoint, 'CameraX:', cameraX);
+			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
+				if (bgLoopVideo.classList.contains('bg-zoom-in')) {
+					bgLoopVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
+				} else {
+					bgLoopVideo.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
+				}
+			}
+    
+			// Apply camera offset to foreground (with its larger scale)
+			if (bgForeground && bgForeground.style.display !== 'none') {
+				if (bgForeground.classList.contains('fg-zoom-in')) {
+					bgForeground.style.transform = `translate(-50%, -65%) scale(1.2) translateX(-${cameraX}px)`;
+				} else {
+					bgForeground.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
+				}
+			}
 		}
 		
         // Game loop
