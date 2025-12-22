@@ -47,15 +47,16 @@
             pointer-events: none;
         }
 		
-        #bgIntroVideo, #bgLoopVideo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 1920px;
-            height: 1080px;
-            transform-origin: center center;
-            object-fit: cover;
-        }
+		#bgIntroVideo, #bgLoopVideo {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 1920px;
+			height: 1080px;
+			transform-origin: center center;
+			object-fit: cover;
+			z-index: -1;
+		}
         
         #bgForeground {
             position: absolute;
@@ -446,12 +447,12 @@
 <body>
 	<!-- Background video container (hidden until game starts) -->
 	<div id="bgContainer" style="display: none;">
-		<video id="bgIntroVideo" playsinline>
+		<video id="bgIntroVideo" playsinline style="z-index: -1;">
 			<source src="" type="video/mp4">
-        </video>
-        <video id="bgLoopVideo" loop playsinline style="display: none;">
+		</video>
+		<video id="bgLoopVideo" loop playsinline style="display: none; z-index: -1;">
 			<source src="" type="video/mp4">
-        </video>
+		</video>
     </div>
 	
     <video id="startVideo" autoplay loop muted playsinline style="display: none;">
@@ -1007,6 +1008,7 @@
 		
 		// Background video control
         let bgIntroPlayed = false;
+		
 		function playBackgroundIntro(callback) {
 			const bgContainer = document.getElementById('bgContainer');
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
@@ -1064,40 +1066,52 @@
 			// At 5 seconds, start zoom AND crossfade videos
 			setTimeout(() => {
 				console.log('Starting zoom sequence + video crossfade');
-        
+            
 				// Apply zoom animations to BOTH videos
 				bgIntroVideo.classList.add('bg-zoom-in');
 				bgLoopVideo.classList.add('bg-zoom-in');
 				bgForeground.classList.add('fg-zoom-in');
-        
+            
 				// Start crossfade transition
 				bgIntroVideo.style.transition = 'opacity 0.5s';
 				bgLoopVideo.style.transition = 'opacity 0.5s';
-        
-				// WAIT for loop video to be ready, THEN crossfade
-				bgLoopVideo.addEventListener('canplaythrough', function onLoopReady() {
-					bgLoopVideo.removeEventListener('canplaythrough', onLoopReady);
-					console.log('✅ Loop video ready, starting crossfade...');
             
+				// Function to start the crossfade
+				function startCrossfade() {
+					console.log('✅ Loop video ready, starting crossfade...');
+                
 					// Start loop playback
 					bgLoopVideo.play().then(() => {
 						console.log('Loop video playing, fading in...');
 						// Crossfade: fade out intro, fade in loop
 						bgIntroVideo.style.opacity = '0';
 						bgLoopVideo.style.opacity = '1';
-                
+                    
 						// After crossfade completes, hide intro completely
 						setTimeout(() => {
 							bgIntroVideo.style.display = 'none';
 							console.log('Intro video hidden');
 						}, 600);
-                
+                    
 					}).catch(err => {
 						console.error('❌ Loop video play error:', err);
 					});
+				}
             
-				}, { once: true });
-        
+				// Check if loop video is ALREADY ready, or wait for it
+				if (bgLoopVideo.readyState >= 3) {
+					// readyState 3 = HAVE_FUTURE_DATA, 4 = HAVE_ENOUGH_DATA
+					console.log('Loop video already loaded!');
+					startCrossfade();
+				} else {
+
+					console.log('Waiting for loop video to load...');
+					bgLoopVideo.addEventListener('canplaythrough', function onLoopReady() {
+						bgLoopVideo.removeEventListener('canplaythrough', onLoopReady);
+						startCrossfade();
+					}, { once: true });
+				}
+            
 				// At 8 seconds total (3s into zoom), show FIGHT! animation
 				setTimeout(() => {
 					console.log('Showing FIGHT! overlay');
@@ -1107,7 +1121,7 @@
 						if (callback) callback();
 					});
 				}, 3000);
-        
+            
 			}, 5000);
 		}
         
