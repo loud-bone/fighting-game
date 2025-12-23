@@ -1716,58 +1716,36 @@
 			const midpoint = (player1Center + player2Center) / 2;
     
 			// Calculate where camera should be to center this midpoint
+			// Canvas is 1024px, so center is at 512px
 			const targetCameraX = midpoint - 512;
     
-			// Clamp between 0 and 896
+			// Clamp between 0 and 896 (1920 - 1024 = 896 max pan)
 			cameraX = Math.max(0, Math.min(896, targetCameraX));
-    
-			// Convert cameraX to offset from center
-			// Background is 1920px, canvas is 1024px
-			// When centered, bg left edge is at -448px (-(1920-1024)/2)
-			// We want to move from that baseline
-			const centerOffset = -448; // -(1920-1024)/2
-			const actualOffset = centerOffset + cameraX;
     
 			// Get video and foreground elements
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
 			const bgLoopVideo = document.getElementById('bgLoopVideo');
 			const bgForeground = document.getElementById('bgForeground');
     
-			// Apply camera offset using LEFT positioning instead of translateX
+			// SIMPLE approach: Move background LEFT as camera value increases
+			// This shows more of the RIGHT side of the background
+			const bgOffset = -cameraX; // Negative to pan correctly
+    
+			// Apply to videos
 			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
-				bgIntroVideo.style.transform = `translate(-50%, -65%) scale(0.8)`;
-				bgIntroVideo.style.left = `calc(50% + ${actualOffset}px)`;
+				bgIntroVideo.style.transform = `translate(calc(-50% + ${bgOffset}px), -65%) scale(0.8)`;
 			}
     
 			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-				bgLoopVideo.style.transform = `translate(-50%, -65%) scale(0.8)`;
-				bgLoopVideo.style.left = `calc(50% + ${actualOffset}px)`;
+        bgLoopVideo.style.transform = `translate(calc(-50% + ${bgOffset}px), -65%) scale(0.8)`;
 			}
     
-			// Foreground at 1.2 scale (parallax) - moves 1.5x faster for depth
+			// Foreground moves faster for parallax (1.5x)
 			if (bgForeground && bgForeground.style.display !== 'none') {
-				const fgOffset = actualOffset * 1.5; // Parallax multiplier
-				bgForeground.style.transform = `translate(-50%, -65%) scale(1.2)`;
-				bgForeground.style.left = `calc(50% + ${fgOffset}px)`;
+				const fgOffset = bgOffset * 1.5;
+				bgForeground.style.transform = `translate(calc(-50% + ${fgOffset}px), -65%) scale(1.2)`;
 			}
 		}
-    
-		if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-			if (bgLoopVideo.classList.contains('bg-zoom-in')) {
-				bgLoopVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
-			} else {
-				bgLoopVideo.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
-			}
-		}
-		
-			// Apply camera offset to foreground (with its larger scale)
-			if (bgForeground && bgForeground.style.display !== 'none') {
-				if (bgForeground.classList.contains('fg-zoom-in')) {
-					bgForeground.style.transform = `translate(-50%, -65%) scale(1.2) translateX(-${cameraX}px)`;
-				} else {
-					bgForeground.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
-				}
-			}
 		
         // Game loop
         function gameLoop() {
