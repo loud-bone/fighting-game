@@ -1037,7 +1037,9 @@
     
 			// Set initial scale for BOTH videos (wide shot)
 			bgIntroVideo.style.transform = 'translate(-50%, -59%) scale(0.56)';
+			bgIntroVideo.style.left = '50%'; // NEW: Explicit centering
 			bgLoopVideo.style.transform = 'translate(-50%, -59%) scale(0.56)';
+			bgLoopVideo.style.left = '50%'; // NEW: Explicit centering
     
 			// Set initial opacity states
 			bgIntroVideo.style.display = 'block'; // NEW: Make sure it's visible
@@ -1081,6 +1083,11 @@
 				// Function to start the crossfade
 				function startCrossfade() {
 					console.log('✅ Loop video ready, starting crossfade...');
+
+					// NEW: Set loop video to EXACT same position as intro's final state
+					bgLoopVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
+					bgLoopVideo.style.left = '50%'; // Centered
+					bgLoopVideo.style.opacity = '0'; // Start invisible
                 
 					// Start loop playback
 					bgLoopVideo.play().then(() => {
@@ -1176,6 +1183,7 @@
     
 			// Set to final zoomed state (no animation, camera will control it)
 			bgLoopVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
+			bgLoopVideo.style.left = '50%'; // NEW: Centered baseline
 			bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
     
 			// Load and play loop video
