@@ -1132,15 +1132,23 @@
 					});
 				}, 3000);
             
-				// NEW: Lock in final foreground position after zoom completes (5 seconds)
+				// NEW: After zoom completes, remove animation classes and enable camera
 				setTimeout(() => {
+					console.log('🔒 Zoom complete, enabling camera control');
+                
+					// Remove animation classes (they've finished)
+					bgIntroVideo.classList.remove('bg-zoom-in');
+					bgLoopVideo.classList.remove('bg-zoom-in');
+					bgForeground.classList.remove('fg-zoom-in');
+                
+					// Set final transforms manually (camera will now control these)
+					bgIntroVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
+					bgLoopVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
 					bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
-					bgForeground.classList.add('fg-zoom-in');
-					console.log('🔒 Foreground locked at final zoom position');
-				}, 5000);        
+				}, 10000); // 10 seconds = 5s timeout + 5s animation duration       
 			}, 5000);
 		}
-        
+
 		function skipToBackgroundLoop() {
 			const bgContainer = document.getElementById('bgContainer');
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
@@ -1156,13 +1164,18 @@
 			bgContainer.style.display = 'block';
 			document.getElementById('fgContainer').style.display = 'block';
     
+			// IMPORTANT: Remove old animation classes from previous fight
+			bgIntroVideo.classList.remove('bg-zoom-in');
+			bgLoopVideo.classList.remove('bg-zoom-in');
+			bgForeground.classList.remove('fg-zoom-in');
+    
 			// Hide intro video, show loop video
 			bgIntroVideo.style.display = 'none';
 			bgLoopVideo.style.display = 'block';
     
-			// Already zoomed in state (end of zoom animation)
+			// Set to final zoomed state (no animation, camera will control it)
 			bgLoopVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
-			bgLoopVideo.classList.add('bg-zoom-in'); // Mark as zoomed
+			bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
     
 			// Load and play loop video
 			console.log('🎬 LOADING LOOP for fight', bgNumber);
@@ -1180,10 +1193,8 @@
 			console.log('🎬 LOADING FOREGROUND for fight', bgNumber);
 			bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
 			bgForeground.style.display = 'block';
-			bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
-			bgForeground.classList.add('fg-zoom-in'); // Mark as zoomed
 		}
-		
+        
         // Mode selection buttons
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
@@ -1680,25 +1691,30 @@
 			const bgLoopVideo = document.getElementById('bgLoopVideo');
 			const bgForeground = document.getElementById('bgForeground');
     
-    
-			// Apply camera offset to background videos (add translateX to existing transform)
+			// Apply camera offset (only to zoomed-in state)
+			// Background videos at 0.8 scale
 			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
-				// Check if it's zoomed (has bg-zoom-in class) or wide
-				if (bgIntroVideo.classList.contains('bg-zoom-in')) {
-					bgIntroVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
-				} else {
-					bgIntroVideo.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
-				}
+				bgIntroVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
 			}
     
 			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-				if (bgLoopVideo.classList.contains('bg-zoom-in')) {
-					bgLoopVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
-				} else {
-					bgLoopVideo.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
-				}
+				bgLoopVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
 			}
     
+			// Foreground at 1.2 scale (parallax)
+			if (bgForeground && bgForeground.style.display !== 'none') {
+				bgForeground.style.transform = `translate(-50%, -65%) scale(1.2) translateX(-${cameraX}px)`;
+			}
+		}
+    
+		if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
+			if (bgLoopVideo.classList.contains('bg-zoom-in')) {
+				bgLoopVideo.style.transform = `translate(-50%, -65%) scale(0.8) translateX(-${cameraX}px)`;
+			} else {
+				bgLoopVideo.style.transform = `translate(-50%, -59%) scale(0.56) translateX(-${cameraX}px)`;
+			}
+		}
+		
 			// Apply camera offset to foreground (with its larger scale)
 			if (bgForeground && bgForeground.style.display !== 'none') {
 				if (bgForeground.classList.contains('fg-zoom-in')) {
