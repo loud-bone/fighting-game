@@ -1708,21 +1708,36 @@
 
 		function updateCamera() {
 			if (!player1 || !player2) return;
-
-			// Step 1: Find midpoint in CANVAS space (0-1024)
-			const player1Center = player1.x + (player1.width / 2);
-			const player2Center = player2.x + (player2.width / 2);
-			const canvasMidpoint = (player1Center + player2Center) / 2;
-
-			// Step 2: Map canvas position (0-1024) to background offset (0-896)
-			// When fighters are at canvas 0, show background from left (offset = 0)
-			// When fighters are at canvas 1024, show background from right (offset = 896)
-			const panRange = 1920 - 1024; // 896px we can pan through
-			const panOffset = (canvasMidpoint / 1024) * panRange;
-
-			// Step 3: Convert offset to transform value
-			// Negative value pans the background left (showing more of the right side)
-			const bgPan = -panOffset;
+    
+			// Get fighter positions
+			const p1Left = player1.x;
+			const p1Right = player1.x + player1.width;
+			const p2Left = player2.x;
+			const p2Right = player2.x + player2.width;
+    
+			// Find the leftmost and rightmost points
+			const leftmost = Math.min(p1Left, p2Left);
+			const rightmost = Math.max(p1Right, p2Right);
+    
+			// Calculate midpoint
+			const midpoint = (leftmost + rightmost) / 2;
+    
+			// How far apart are the fighters?
+			const span = rightmost - leftmost;
+    
+			// Camera tries to center the midpoint
+			let targetPan = midpoint - 512; // Center midpoint in canvas (512px)
+    
+			// BUT clamp it so both fighters stay visible
+			// Fighters need to stay within 0-1024 canvas view
+			// Background can pan 0-896px
+			const minPan = Math.max(0, leftmost - 50); // Keep 50px margin on left
+			const maxPan = Math.min(896, rightmost - 974); // Keep 50px margin on right
+    
+			const cameraPan = Math.max(minPan, Math.min(maxPan, targetPan));
+    
+			// Convert to background position
+			const bgPan = -cameraPan;
     
 			// Get elements
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
@@ -1735,24 +1750,23 @@
 			}
     
 			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-				bgLoopVideo.style.transform = `translate(calc(-25% + ${bgPan}px), -65%) scale(0.8)`;
+				bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
 			}
     
-			// Foreground with parallax (moves 1.5x faster)
+			// Foreground with parallax
 			if (bgForeground && bgForeground.style.display !== 'none') {
 				const fgPan = bgPan * 1.5;
 				bgForeground.style.transform = `translate(calc(-50% + ${fgPan}px), -65%) scale(1.2)`;
 			}
     
-			// DETAILED DEBUG
+			// DEBUG
 			console.log({
-				p1: player1.x,
-				p2: player2.x,
-				p1Center: player1Center,
-				p2Center: player2Center,
-				canvasMidpoint: canvasMidpoint,
-				panOffset: panOffset,
-				bgPan: bgPan
+				leftmost,
+				rightmost,
+				midpoint,
+				targetPan,
+				cameraPan,
+				bgPan
 			});
 		}
 
