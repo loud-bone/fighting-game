@@ -50,7 +50,7 @@
 		#bgIntroVideo, #bgLoopVideo {
 			position: absolute;
 			top: 50%;
-			left: 50%;
+			left: 0%;
 			width: 1920px;
 			height: 1080px;
 			transform-origin: center center;
@@ -61,7 +61,7 @@
         #bgForeground {
             position: absolute;
             top: 50%;
-            left: 50%;
+            left: 0%;
             width: 1920px;
             height: 1080px;
             transform-origin: center center;
@@ -1710,40 +1710,45 @@
 			// Don't move camera if fighters don't exist yet
 			if (!player1 || !player2) return;
     
-			// Calculate center point between fighters
+			// Calculate center point between fighters (in canvas coordinates 0-1024)
 			const player1Center = player1.x + (player1.width / 2);
 			const player2Center = player2.x + (player2.width / 2);
 			const midpoint = (player1Center + player2Center) / 2;
     
 			// Calculate where camera should be to center this midpoint
-			// Canvas is 1024px, so center is at 512px
-			const targetCameraX = midpoint - 960;
+			// We want midpoint to appear at canvas center (512px)
+			const targetCameraX = midpoint - 512;
     
-			// Clamp between 0 and 896 (1920 - 1024 = 896 max pan)
+			// Clamp between 0 and 896 (that's how much we can pan: 1920 - 1024)
 			cameraX = Math.max(0, Math.min(896, targetCameraX));
+    
+			// Calculate where to position the background's LEFT edge
+			// Canvas width is 1024px, background is 1920px
+			// When cameraX = 0, background left should be at -448px (showing left side)
+			// When cameraX = 896, background left should be at -1344px (showing right side)
+			const bgLeft = -448 - cameraX;
     
 			// Get video and foreground elements
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
 			const bgLoopVideo = document.getElementById('bgLoopVideo');
 			const bgForeground = document.getElementById('bgForeground');
     
-			// SIMPLE approach: Move background LEFT as camera value increases
-			// This shows more of the RIGHT side of the background
-			const bgOffset = -cameraX; // Negative to pan correctly
-    
-			// Apply to videos
+			// Apply positioning to videos (only vertical transform now)
 			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
-				bgIntroVideo.style.transform = `translate(calc(-50% + ${bgOffset}px), -65%) scale(0.8)`;
+				bgIntroVideo.style.left = bgLeft + 'px';
+				bgIntroVideo.style.transform = 'translateY(-65%) scale(0.8)';
 			}
     
 			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-        bgLoopVideo.style.transform = `translate(calc(-50% + ${bgOffset}px), -65%) scale(0.8)`;
+				bgLoopVideo.style.left = bgLeft + 'px';
+				bgLoopVideo.style.transform = 'translateY(-65%) scale(0.8)';
 			}
     
-			// Foreground moves faster for parallax (1.5x)
+			// Foreground moves faster for parallax (1.5x the camera movement)
 			if (bgForeground && bgForeground.style.display !== 'none') {
-				const fgOffset = bgOffset * 1.5;
-				bgForeground.style.transform = `translate(calc(-50% + ${fgOffset}px), -65%) scale(1.2)`;
+				const fgLeft = -448 - (cameraX * 1.5);
+				bgForeground.style.left = fgLeft + 'px';
+				bgForeground.style.transform = 'translateY(-65%) scale(1.2)';
 			}
 		}
 		
