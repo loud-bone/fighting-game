@@ -1718,7 +1718,7 @@
 			// When fighters are at canvas 0, show background from left (offset = 0)
 			// When fighters are at canvas 1024, show background from right (offset = 896)
 			const panRange = 1920 - 1024; // 896px we can pan through
-			const panOffset = (canvasMidpoint / 1920) * panRange;
+			const panOffset = (canvasMidpoint / 1024) * panRange;
 
 			// Step 3: Convert offset to transform value
 			// Negative value pans the background left (showing more of the right side)
@@ -1735,7 +1735,7 @@
 			}
     
 			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-				bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
+				bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -45%) scale(0.8)`;
 			}
     
 			// Foreground with parallax (moves 1.5x faster)
