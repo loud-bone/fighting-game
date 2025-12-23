@@ -1194,6 +1194,7 @@
 			console.log('🎬 LOADING FOREGROUND for fight', bgNumber);
 			bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
 			bgForeground.style.display = 'block';
+			bgForeground.style.left = '50%'; // NEW: Reset to center position
 		}
         
         // Mode selection buttons
@@ -1532,6 +1533,7 @@
 			// NEW: Reset video display states
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
 			const bgLoopVideo = document.getElementById('bgLoopVideo');
+			const bgForeground = document.getElementById('bgForeground');
 			if (bgIntroVideo) {
 				bgIntroVideo.style.display = 'block';
 				bgIntroVideo.style.left = '50%';
@@ -1539,6 +1541,9 @@
 			if (bgLoopVideo) {
 				bgLoopVideo.style.display = 'none';
 				bgLoopVideo.style.left = '50%';
+			}
+			if (bgForeground) {
+				bgForeground.style.left = '50%'; // NEW: Reset foreground too
 			}
     
 			if (currentFight > 7) {
@@ -1713,7 +1718,7 @@
 			// When centered, bg left edge is at -448px (-(1920-1024)/2)
 			// We want to move from that baseline
 			const centerOffset = -448; // -(1920-1024)/2
-			const actualOffset = centerOffset - cameraX;
+			const actualOffset = centerOffset + cameraX;
     
 			// Get video and foreground elements
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
