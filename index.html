@@ -1713,21 +1713,20 @@
 			const p1Center = player1.x + (player1.width / 2);
 			const p2Center = player2.x + (player2.width / 2);
 			const midpoint = (p1Center + p2Center) / 2;
-
-			// Map canvas position (0-1024) to pan value
-			// When midpoint = 0 (far left): we want to show LEFT of background (bgPan = +448)
-			// When midpoint = 512 (center): we want to show CENTER (bgPan = 0)
-   	 		// When midpoint = 1024 (far right): we want to show RIGHT (bgPan = -448)
-
+    
+			// Calculate desired pan
 			const maxPan = 448; // How far we can pan from center
-			const bgPan = maxPan - (midpoint / 512) * maxPan;
-			// This gives us: bgPan ranges from +448 (left) to -448 (right)
-
+			let bgPan = maxPan - (midpoint / 512) * maxPan;
+    
+			// CRITICAL: Clamp bgPan to valid range
+			// +448 shows LEFT edge, -448 shows RIGHT edge
+			bgPan = Math.max(-448, Math.min(448, bgPan));
+    
 			// Get elements
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
 			const bgLoopVideo = document.getElementById('bgLoopVideo');
 			const bgForeground = document.getElementById('bgForeground');
-
+    
 			// Apply to videos
 			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
 				bgIntroVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
@@ -1737,9 +1736,11 @@
 				bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
 			}
     
-			// Foreground with parallax (moves 1.5x as much)
+			// Foreground with parallax - BUT also clamp it
 			if (bgForeground && bgForeground.style.display !== 'none') {
-				const fgPan = bgPan * 1.5;
+				let fgPan = bgPan * 1.5;
+				// Foreground has different limits because of scale
+				fgPan = Math.max(-672, Math.min(672, fgPan));
 				bgForeground.style.transform = `translate(calc(-50% + ${fgPan}px), -65%) scale(1.2)`;
 			}
     
@@ -1764,39 +1765,6 @@
 
                 // Update camera position
                 updateCamera();
-                
-                // NEW: Constrain fighters based on camera edges
-                // Camera shows background pixels based on bgPan
-                // bgPan ranges from +448 (left edge) to -448 (right edge)
-                
-                // Calculate current visible background bounds
-                const midpoint = ((player1.x + player1.width/2) + (player2.x + player2.width/2)) / 2;
-                const maxPan = 448;
-                const bgPan = maxPan - (midpoint / 512) * maxPan;
-                
-                // When bgPan = +448, we're showing background 0-1024 (fighters can't go left of 0)
-                // When bgPan = -448, we're showing background 896-1920 (fighters can't go right of 1024)
-                // But we need some padding so they don't hit the exact edge
-                
-                const edgePadding = 50; // Keep fighters 50px from edges
-                
-                // Left boundary
-                if (bgPan >= 448 - edgePadding) {
-                    // Camera is at/near left edge
-                    if (player1.x < edgePadding) player1.x = edgePadding;
-                    if (player2.x < edgePadding) player2.x = edgePadding;
-                }
-                
-                // Right boundary  
-                if (bgPan <= -448 + edgePadding) {
-                    // Camera is at/near right edge
-                    if (player1.x + player1.width > canvas.width - edgePadding) {
-                        player1.x = canvas.width - player1.width - edgePadding;
-                    }
-                    if (player2.x + player2.width > canvas.width - edgePadding) {
-                        player2.x = canvas.width - player2.width - edgePadding;
-                    }
-                }
                 
                 // Check collisions
                 if (checkCollision(player1, player2)) {
