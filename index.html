@@ -1756,14 +1756,47 @@
 				requestAnimationFrame(gameLoop);
 				return;
             }
-            
-            if (!gameOver && gameInCombat && !gamePaused) {  // ← Added !gamePaused
-                // Update fighters
-                player1.update(player2);
+			
+			if (!gameOver && gameInCombat && !gamePaused) {
+				// Update fighters
+				player1.update(player2);
                 player2.update(player1);
 
-				// NEW: Update camera position
-				updateCamera();
+                // Update camera position
+                updateCamera();
+                
+                // NEW: Constrain fighters based on camera edges
+                // Camera shows background pixels based on bgPan
+                // bgPan ranges from +448 (left edge) to -448 (right edge)
+                
+                // Calculate current visible background bounds
+                const midpoint = ((player1.x + player1.width/2) + (player2.x + player2.width/2)) / 2;
+                const maxPan = 448;
+                const bgPan = maxPan - (midpoint / 512) * maxPan;
+                
+                // When bgPan = +448, we're showing background 0-1024 (fighters can't go left of 0)
+                // When bgPan = -448, we're showing background 896-1920 (fighters can't go right of 1024)
+                // But we need some padding so they don't hit the exact edge
+                
+                const edgePadding = 50; // Keep fighters 50px from edges
+                
+                // Left boundary
+                if (bgPan >= 448 - edgePadding) {
+                    // Camera is at/near left edge
+                    if (player1.x < edgePadding) player1.x = edgePadding;
+                    if (player2.x < edgePadding) player2.x = edgePadding;
+                }
+                
+                // Right boundary  
+                if (bgPan <= -448 + edgePadding) {
+                    // Camera is at/near right edge
+                    if (player1.x + player1.width > canvas.width - edgePadding) {
+                        player1.x = canvas.width - player1.width - edgePadding;
+                    }
+                    if (player2.x + player2.width > canvas.width - edgePadding) {
+                        player2.x = canvas.width - player2.width - edgePadding;
+                    }
+                }
                 
                 // Check collisions
                 if (checkCollision(player1, player2)) {
