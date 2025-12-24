@@ -1347,6 +1347,34 @@
     		player2.x = canvas.width - 200;
     		player2.y = GROUND - 100;
 
+			// NEW: Initialize camera immediately (no lag!)
+			const p1Center = player1.x + (player1.width / 2);
+			const p2Center = player2.x + (player2.width / 2);
+			const midpoint = (p1Center + p2Center) / 2;
+			const maxPan = 224;
+			let initialBgPan = maxPan - (midpoint / 512) * maxPan;
+			initialBgPan = Math.max(-224, Math.min(224, initialBgPan));
+        
+
+			// Apply immediately to background elements
+			const bgIntroVideo = document.getElementById('bgIntroVideo');
+			const bgLoopVideo = document.getElementById('bgLoopVideo');
+			const bgForeground = document.getElementById('bgForeground');
+        
+			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
+				bgIntroVideo.style.transform = `translate(calc(-50% + ${initialBgPan}px), -65%) scale(0.8)`;
+			}
+			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
+				bgLoopVideo.style.transform = `translate(calc(-50% + ${initialBgPan}px), -65%) scale(0.8)`;
+			}
+			if (bgForeground && bgForeground.style.display !== 'none') {
+				let fgPan = initialBgPan * 1.5;
+				fgPan = Math.max(-336, Math.min(336, fgPan));
+				bgForeground.style.transform = `translate(calc(-50% + ${fgPan}px), -65%) scale(1.2)`;
+			}
+        
+			console.log('🎬 Camera initialized at round start:', initialBgPan);
+
 			// Reset camera to starting position
 			cameraX = 0;
 			// Camera position will be applied by updateCamera() in game loop
