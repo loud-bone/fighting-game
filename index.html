@@ -450,7 +450,7 @@
 		<video id="bgIntroVideo" playsinline style="z-index: -1;">
 			<source src="" type="video/mp4">
 		</video>
-		<video id="bgLoopVideo" loop playsinline style="display: none; z-index: -1;">
+		<video id="bgLoopVideo" playsinline style="display: none; z-index: -1;">
 			<source src="" type="video/mp4">
 		</video>
     </div>
@@ -1102,9 +1102,13 @@
                         console.log('Intro video hidden');
                     }, 600);
 
-						// NEW: Debug what happens when video loops
-						bgLoopVideo.addEventListener('seeked', function() {
-							console.log('🔄 VIDEO LOOPED! Current transform:', bgLoopVideo.style.transform);
+						// NEW: Manual loop control (preserves transform)
+						bgLoopVideo.addEventListener('ended', function loopHandler() {
+							console.log('🔄 Video ended, restarting with transform preserved');
+
+							// Restart immediately - transform stays intact
+							bgLoopVideo.currentTime = 0;
+							bgLoopVideo.play();
 						});
                     
 					}).catch(err => {
