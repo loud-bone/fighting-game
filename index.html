@@ -1135,6 +1135,13 @@
 					console.log('Showing FIGHT! overlay');
 					playAnnouncement('fight', () => {
 						console.log('FIGHT! animation complete, starting combat');
+
+						// NEW: Force one camera update BEFORE combat starts
+						if (player1 && player2) {
+							updateCamera();
+							console.log('🎬 Camera synced before combat start');
+						}
+						
 						bgIntroPlayed = true;
 						if (callback) callback();
 					});
@@ -1449,6 +1456,12 @@
         		
         		playAnnouncement(`round-${currentRound}`, () => {
             		playAnnouncement('fight', () => {
+						// NEW: Sync camera before combat
+						if (player1 && player2) {
+							updateCamera();
+							console.log('🎬 Camera synced for round', currentRound);
+						}
+						
                 		gameInCombat = true;
                 		console.log('Game started! Fight begins!');
             		});
