@@ -1101,6 +1101,11 @@
                         bgIntroVideo.style.display = 'none';
                         console.log('Intro video hidden');
                     }, 600);
+
+						// NEW: Debug what happens when video loops
+						bgLoopVideo.addEventListener('seeked', function() {
+							console.log('🔄 VIDEO LOOPED! Current transform:', bgLoopVideo.style.transform);
+						});
                     
 					}).catch(err => {
 						console.error('❌ Loop video play error:', err);
