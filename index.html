@@ -1140,7 +1140,7 @@
 					});
 				}, 3000);
             
-				// NEW: After zoom completes, remove animation classes and enable camera
+				// After zoom completes, remove animation classes and enable camera
 				setTimeout(() => {
 					console.log('🔒 Zoom complete, enabling camera control');
                 
@@ -1149,11 +1149,24 @@
 					bgLoopVideo.classList.remove('bg-zoom-in');
 					bgForeground.classList.remove('fg-zoom-in');
                 
-					// Set final transforms manually (camera will now control these)
-					bgIntroVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
-					bgLoopVideo.style.transform = 'translate(-50%, -65%) scale(0.8)';
-					bgForeground.style.transform = 'translate(-50%, -65%) scale(1.2)';
-				}, 10000); // 10 seconds = 5s timeout + 5s animation duration       
+					// NEW: Set camera position IMMEDIATELY (no lag!)
+					const p1Center = player1.x + (player1.width / 2);
+					const p2Center = player2.x + (player2.width / 2);
+					const midpoint = (p1Center + p2Center) / 2;
+					const maxPan = 224;
+					let bgPan = maxPan - (midpoint / 512) * maxPan;
+					bgPan = Math.max(-224, Math.min(224, bgPan));
+                
+					// Set final transforms with camera position
+					bgIntroVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
+					bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
+                
+					let fgPan = bgPan * 1.5;
+					fgPan = Math.max(-336, Math.min(336, fgPan));
+					bgForeground.style.transform = `translate(calc(-50% + ${fgPan}px), -65%) scale(1.2)`;
+                
+					console.log('🎬 Camera set after zoom:', bgPan);
+				}, 10000);    
 			}, 5000);
 		}
 
@@ -1203,6 +1216,24 @@
 			bgForeground.src = `backgrounds/bg-${bgNumber}-fg.png`;
 			bgForeground.style.display = 'block';
 			bgForeground.style.left = '50%'; // NEW: Reset to center position
+
+			// NEW: Initialize camera for this round
+			if (player1 && player2) {
+				const p1Center = player1.x + (player1.width / 2);
+				const p2Center = player2.x + (player2.width / 2);
+				const midpoint = (p1Center + p2Center) / 2;
+				const maxPan = 224;
+				let bgPan = maxPan - (midpoint / 512) * maxPan;
+				bgPan = Math.max(-224, Math.min(224, bgPan));
+            
+				bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
+				
+				let fgPan = bgPan * 1.5;
+				fgPan = Math.max(-336, Math.min(336, fgPan));
+				bgForeground.style.transform = `translate(calc(-50% + ${fgPan}px), -65%) scale(1.2)`;
+            
+				console.log('🎬 Camera set for subsequent round:', bgPan);
+			}
 		}
         
         // Mode selection buttons
