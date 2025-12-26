@@ -1781,42 +1781,40 @@
 		function updateCamera() {
 			if (!player1 || !player2) return;
     
-			// Get fighter positions
 			const p1Center = player1.x + (player1.width / 2);
 			const p2Center = player2.x + (player2.width / 2);
 			const midpoint = (p1Center + p2Center) / 2;
     
-			// Calculate desired pan
-			const maxPan = 448; // How far we can pan from center
+			// New calculation WITHOUT the -50% in transform
+			// We need to compensate by calculating absolute position instead
+			const maxPan = 224;
 			let bgPan = maxPan - (midpoint / 512) * maxPan;
-    
-			// CRITICAL: Clamp bgPan to valid range
-			// +448 shows LEFT edge, -448 shows RIGHT edge
 			bgPan = Math.max(-224, Math.min(224, bgPan));
     
-			// Get elements
+			// Adjust for the missing -50% (which was -960px for a 1920px video)
+			const adjustedPan = bgPan - 960; // Compensate for removed centering
+    
 			const bgIntroVideo = document.getElementById('bgIntroVideo');
 			const bgLoopVideo = document.getElementById('bgLoopVideo');
 			const bgForeground = document.getElementById('bgForeground');
     
-			// Apply to videos
+			// NEW: No calc(), no -50%, just absolute pixels
 			if (bgIntroVideo && bgIntroVideo.style.display !== 'none') {
-				bgIntroVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
+				bgIntroVideo.style.transform = `translateX(${adjustedPan}px) translateY(-65%) scale(0.8)`;
 			}
     
 			if (bgLoopVideo && bgLoopVideo.style.display !== 'none') {
-				bgLoopVideo.style.transform = `translate(calc(-50% + ${bgPan}px), -65%) scale(0.8)`;
+				bgLoopVideo.style.transform = `translateX(${adjustedPan}px) translateY(-65%) scale(0.8)`;
 			}
     
-			// Foreground with parallax - BUT also clamp it
 			if (bgForeground && bgForeground.style.display !== 'none') {
 				let fgPan = bgPan * 1.5;
-				// Foreground has different limits because of scale
-				fgPan = Math.max(-672, Math.min(672, fgPan));
-				bgForeground.style.transform = `translate(calc(-50% + ${fgPan}px), -65%) scale(1.2)`;
+				fgPan = Math.max(-336, Math.min(336, fgPan));
+				const adjustedFgPan = fgPan - 960;
+				bgForeground.style.transform = `translateX(${adjustedFgPan}px) translateY(-65%) scale(1.2)`;
 			}
     
-			console.log({midpoint, bgPan});
+			console.log({midpoint, bgPan, adjustedPan});
 		}
 
         // Game loop
