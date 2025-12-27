@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1363,13 +1363,9 @@
 			function showTitleScreen() {
 				console.log('🎮 Showing title screen');
 
-				const startVideo = document.getElementById('startVideo');
-
-				startVideo.style.display = 'block';
-				startVideo.load();
-				startVideo.play().catch(err => {
-					console.error('Title video play error:', err);
-				});
+				// Show video background
+				document.getElementById('startVideo').style.display = 'block';
+        
 				// TODO: Later we'll check if hero is pre-selected
 				// For now, just show start button
 				document.getElementById('modeButtons').style.display = 'flex';
@@ -1446,14 +1442,8 @@
         
         function startGame() {
             console.log('Starting game');
-
-			const startVideo = document.getElementById('startVideo');
-			startVideo.pause();
-			startVideo.currentTime = 0;
-			startVideo.style.display = 'none';
-			
-			stopButtonBlink();
             document.getElementById('modeButtons').classList.add('hidden');
+			document.getElementById('startVideo').style.display = 'none';
 			document.querySelector('.game-container').style.display = 'block';
 			document.querySelector('.controls-image').style.display = 'block';  // Show controls
             initGame();
