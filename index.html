@@ -1452,14 +1452,26 @@
         
         function startGame() {
             console.log('Starting game');
+
+			//START game
+			const startVideo = document.getElementById('startVideo');
+			startVideo.pause();
+			startVideo.currentTime = 0;
+			startVideo.style.display = 'none';
+
+			// FORCE hide the button
             document.getElementById('modeButtons').style.display = 'none';
 			document.getElementById('startVideo').style.display = 'none';
+
+			// Show game elements
 			document.querySelector('.game-container').style.display = 'block';
 			document.querySelector('.controls-image').style.display = 'block';  // Show controls
+			
             initGame();
 
 			// Show first VS screen
-			const firstEnemyName = characterStats.enemy1.name;
+			const firstEnemyKey = enemyLadder[0];
+			const firstEnemyName = characterStats[firstEnemyKey].name;
 			showVSScreen(firstEnemyName);
 			
             console.log('Game initialized. Player1:', player1, 'Player2:', player2);
