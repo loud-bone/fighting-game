@@ -445,7 +445,28 @@
     </style>
 </head>
 <body>
-	<!-- Background video container (hidden until game starts) -->
+    <!-- Landing Page: Arcade Machine -->
+    <div id="landingPage" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+        <!-- Arcade machine background -->
+        <img src="images/landing-master.png" alt="Arcade Machine" style="position: absolute; width: 100%; height: 100%; object-fit: contain;">
+        
+        <!-- Play button (idle state, overlays on screen area) -->
+        <img id="btnPlayIdle" src="images/button-play-idle.png" alt="PLAY" style="position: absolute; width: 100%; height: 100%; object-fit: contain; cursor: pointer; z-index: 10001;">
+        
+        <!-- Play button (click state, hidden by default) -->
+        <img id="btnPlayClick" src="images/button-play-click.png" alt="PLAY" style="position: absolute; width: 100%; height: 100%; object-fit: contain; cursor: pointer; z-index: 10001; display: none;">
+    </div>
+    
+    <!-- Intro Video Screen (hidden initially) -->
+    <div id="introScreen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; display: none;">
+        <video id="introVideo" style="width: 100%; height: 100%; object-fit: contain;">
+            <source src="videos/title.intro.mp4" type="video/mp4">
+        </video>
+        
+        <!-- Skip button (bottom right corner) -->
+        <img id="btnSkip" src="images/button-skip.png" alt="SKIP" style="position: absolute; bottom: 50px; right: 50px; width: 200px; height: auto; cursor: pointer; z-index: 10000; opacity: 0.8; transition: opacity 0.2s;">
+    </div>
+
 	<div id="bgContainer" style="display: none;">
 		<video id="bgIntroVideo" playsinline style="z-index: -1;">
 			<source src="" type="video/mp4">
@@ -930,7 +951,30 @@
                 }
             }
         }
-        
+
+		// Generate enemy ladder (9 enemies + boss = 10 fights)
+		function generateEnemyLadder(selectedHero) {
+			// Get all heroes except selected one and boss
+			const allHeroes = Object.keys(characterStats).filter(
+				key => key !== selectedHero && key !== 'boss'
+			);
+    
+			// Shuffle the array
+			const shuffled = allHeroes.sort(() => Math.random() - 0.5);
+    
+			// Take 9 enemies (since we have 10 other heroes when one is selected)
+			const enemies = shuffled.slice(0, 9);
+    
+			// Add boss as fight 10
+			enemies.push('boss');
+    
+			console.log('🎮 Enemy ladder generated:', enemies);
+			return enemies;
+		}
+
+		// Store the ladder
+		let enemyLadder = [];
+		
         // Keyboard input
         const keys = {};
 
@@ -1247,12 +1291,92 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up controls');
 
-			// Show video background
-			document.getElementById('startVideo').style.display = 'block';
-			
-			// Start button blink
-			startButtonBlink();
+			// ============================================
+			// LANDING PAGE: Play Button
+			// ============================================
+			const btnPlayIdle = document.getElementById('btnPlayIdle');
+			const btnPlayClick = document.getElementById('btnPlayClick');
 
+			// Hover effect for skip button
+			const btnSkip = document.getElementById('btnSkip');
+			btnSkip.addEventListener('mouseenter', () => btnSkip.style.opacity = '1');
+			btnSkip.addEventListener('mouseleave', () => btnSkip.style.opacity = '0.8');
+
+			// Play button press effect
+			btnPlayIdle.addEventListener('mousedown', function() {
+				btnPlayIdle.style.display = 'none';
+				btnPlayClick.style.display = 'block';
+			});
+
+			btnPlayIdle.addEventListener('mouseup', function() {
+				playIntroVideo();
+			});
+
+			btnPlayClick.addEventListener('mouseup', function() {
+				playIntroVideo();
+			});
+
+			// ============================================
+			// INTRO VIDEO
+			// ============================================
+			function playIntroVideo() {
+				console.log('🎬 Playing intro video');
+
+				// Hide landing page
+				document.getElementById('landingPage').style.display = 'none';
+
+				// Show intro screen
+				const introScreen = document.getElementById('introScreen');
+				const introVideo = document.getElementById('introVideo');
+				introScreen.style.display = 'block';
+
+				// Play intro video
+				introVideo.play();
+
+				// When video ends naturally, go to title screen
+				introVideo.addEventListener('ended', function() {
+					skipToTitleScreen();
+				}, { once: true });
+			}
+
+			// Skip button functionality
+			btnSkip.addEventListener('click', function() {
+				console.log('⏭️ Intro skipped');
+				skipToTitleScreen();
+			});
+
+			function skipToTitleScreen() {
+				// Stop and hide intro
+				const introScreen = document.getElementById('introScreen');
+				const introVideo = document.getElementById('introVideo');
+				introVideo.pause();
+				introVideo.currentTime = 0;
+				introScreen.style.display = 'none';
+
+				// Show title screen
+				showTitleScreen();
+			}
+
+			// ============================================
+			// TITLE SCREEN
+			// ============================================
+			function showTitleScreen() {
+				console.log('🎮 Showing title screen');
+
+				// Show video background
+				document.getElementById('startVideo').style.display = 'block';
+        
+				// TODO: Later we'll check if hero is pre-selected
+				// For now, just show start button
+				document.getElementById('modeButtons').style.display = 'flex';
+				
+				// Start button blink
+				startButtonBlink();
+			}
+
+			// ============================================
+			// START BUTTON (existing code)
+			// ============================================
 			const startBtn = document.getElementById('btnSinglePlayer');
 
 			// Handle click
@@ -1262,7 +1386,7 @@
 				startGame();
 			});
 
-			// Handle press effect (shows start-1.png and scales down)
+			// Handle press effect
 			startBtn.addEventListener('mousedown', function() {
 				stopButtonBlink();
 				this.src = 'images/start-1.png';
@@ -1272,13 +1396,13 @@
 			startBtn.addEventListener('mouseup', function() {
 				this.style.transform = 'scale(1)';
 			});
-			
-			// NEW: Pause menu button handlers
+    
+			// Pause menu button handlers
 			document.getElementById('resumeBtn').addEventListener('click', resumeGame);
 			document.getElementById('restartBtn').addEventListener('click', restartFight);
 			document.getElementById('quitBtn').addEventListener('click', quit);
-        });
-        
+		});
+
         window.addEventListener('keydown', (e) => {
 			// ESC to pause/unpause
 			if (e.key === 'Escape') {
@@ -1331,31 +1455,36 @@
             console.log('Game initialized. Player1:', player1, 'Player2:', player2);
         }
         
-        function initGame() {
+		function initGame() {
 			console.log('initGame called. currentFight:', currentFight);
-			
-            const playerControls = {
-                left: 'a',
-                right: 'd',
-                up: 'w',
-                down: 's',
-                punch: 'g',
+    
+			// Generate ladder on first init (fight 1)
+			if (currentFight === 1) {
+				enemyLadder = generateEnemyLadder(selectedHero);
+			}
+    
+			const playerControls = {
+				left: 'a',
+				right: 'd',
+				up: 'w',
+				down: 's',
+				punch: 'g',
 				kick: 'b',
-                special: 'h',
-                block: 'f'
-            };
-            
-	    	// Create player
-			player1 = new Fighter(150, GROUND - 100, characterStats.player, playerControls, false);
-            
-	    	// Create AI opponent based on current fight
-			const enemyKey = currentFight === 7 ? 'boss' : `enemy${currentFight}`;
-				console.log('enemyKey:', enemyKey);
-  				console.log('characterStats[enemyKey]:', characterStats[enemyKey]);
+				special: 'h',
+				block: 'f'
+			};
+    
+			// Create player using selected hero
+			player1 = new Fighter(150, GROUND - 100, characterStats[selectedHero], playerControls, false);
+    
+			// Get enemy from ladder (currentFight is 1-10)
+			const enemyKey = enemyLadder[currentFight - 1];
+			console.log('Fight', currentFight, '- Enemy:', enemyKey);
+    
 			player2 = new Fighter(canvas.width - 200, GROUND - 100, characterStats[enemyKey], {}, true);
 
-	    	// Update UI labels
-			document.getElementById('player1Health').parentElement.previousElementSibling.textContent = characterStats.player.name;
+			// Update UI labels
+			document.getElementById('player1Health').parentElement.previousElementSibling.textContent = characterStats[selectedHero].name;
 			document.getElementById('player2Health').parentElement.previousElementSibling.textContent = characterStats[enemyKey].name;
 
 			// Reset round tracking
@@ -1365,12 +1494,10 @@
 
 			// Clear round win indicators
 			updateRoundWins();
-            
-            gameOver = false;
-			gameInCombat = false;  // NEW: Wait for VS screen + Round announcement
-            lastActionTime = Date.now();
-            document.getElementById('gameOver').style.display = 'none';
-			
+    
+			gameOver = false;
+			gameInCombat = false;
+			document.getElementById('gameOver').style.display = 'none';
 		}
 
 		// ROUNDS
@@ -1626,8 +1753,8 @@
 				bgForeground.style.left = '50%'; // NEW: Reset foreground too
 			}
     
-			if (currentFight > 7) {
-				// Beat the boss!
+			if (currentFight > 10) {
+				// Beat all 10 fights!
 				gameOver = true;
 				const gameOverDiv = document.getElementById('gameOver');
 				gameOverDiv.textContent = 'YOU WIN! GAME COMPLETE!';
