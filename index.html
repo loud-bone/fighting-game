@@ -1363,14 +1363,23 @@
 			// ============================================
 			function showTitleScreen() {
 				console.log('🎮 Showing title screen');
-
+        
+				// Get the video element
+				const startVideo = document.getElementById('startVideo');
+        
 				// Show video background
-				document.getElementById('startVideo').style.display = 'block';
+				startVideo.style.display = 'block';
+        
+				// FORCE the video to load and play
+				startVideo.load();
+				startVideo.play().catch(err => {
+					console.error('❌ Title video play failed:', err);
+				});
         
 				// TODO: Later we'll check if hero is pre-selected
 				// For now, just show start button
 				document.getElementById('modeButtons').style.display = 'flex';
-				
+        
 				// Start button blink
 				startButtonBlink();
 			}
