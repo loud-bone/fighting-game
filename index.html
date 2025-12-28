@@ -632,6 +632,46 @@
 		damageMultiplier: 1.2
 	    },
 
+		enemy7: {
+		name: 'ENEMY 7',
+		color: '#ffeb3b',
+		health: 200,
+		speed: 3,
+		jumpPower: 12,
+		difficulty: 'hard',
+		damageMultiplier: 1.2
+	    },
+
+		enemy8: {
+		name: 'ENEMY 8',
+		color: '#33ff57',
+		health: 200,
+		speed: 3,
+		jumpPower: 15,
+		difficulty: 'medium',
+		damageMultiplier: 0.9
+	    },
+
+		enemy9: {
+		name: 'ENEMY 9',
+		color: '#e91e63',
+		health: 200,
+		speed: 3,
+		jumpPower: 17,
+		difficulty: 'hard',
+		damageMultiplier: 1.0
+	    },
+
+		enemy10: {
+		name: 'ENEMY 10',
+		color: '#6ba3ff',
+		health: 200,
+		speed: 3,
+		jumpPower: 15,
+		difficulty: 'easy',
+		damageMultiplier: 0.75
+	    },
+		
 	    boss: {
 		name: 'BIG BOSS',
         color: '#9933ff',
@@ -1502,6 +1542,8 @@
 			// Get enemy from ladder (currentFight is 1-10)
 			const enemyKey = enemyLadder[currentFight - 1];
 			console.log('Fight', currentFight, '- Enemy:', enemyKey);
+			console.log('📊 Full ladder:', enemyLadder);  // ADD THIS LINE
+			console.log('📊 Ladder length:', enemyLadder.length);  // AND THIS ONE
     
 			player2 = new Fighter(canvas.width - 200, GROUND - 100, characterStats[enemyKey], {}, true);
 
