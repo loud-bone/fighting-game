@@ -1509,10 +1509,12 @@
         
 		function initGame() {
 			console.log('initGame called. currentFight:', currentFight);
+			console.log('🎯 selectedHero:', selectedHero);
     
 			// Generate ladder on first init (fight 1)
 			if (currentFight === 1) {
 				enemyLadder = generateEnemyLadder(selectedHero);
+				console.log('🎲 Generated ladder:', enemyLadder);
 			}
     
 			const playerControls = {
@@ -1527,13 +1529,13 @@
 			};
     
 			// Create player using selected hero
+			console.log('🦸 Creating player1 with:', selectedHero, characterStats[selectedHero]);
 			player1 = new Fighter(150, GROUND - 100, characterStats[selectedHero], playerControls, false);
     
 			// Get enemy from ladder (currentFight is 1-10)
 			const enemyKey = enemyLadder[currentFight - 1];
-			console.log('Fight', currentFight, '- Enemy:', enemyKey);
-			console.log('📊 Full ladder:', enemyLadder);  // ADD THIS LINE
-			console.log('📊 Ladder length:', enemyLadder.length);  // AND THIS ONE
+			console.log('👾 Fight', currentFight, '- Enemy key:', enemyKey);
+			console.log('👾 Enemy stats:', characterStats[enemyKey]);
     
 			player2 = new Fighter(canvas.width - 200, GROUND - 100, characterStats[enemyKey], {}, true);
 
