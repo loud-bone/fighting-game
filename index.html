@@ -2062,10 +2062,12 @@
                 // Update UI
                 updateHealthBars();
             }
-            
-            // Draw fighters
+		
+		// Draw fighters
+		if (player1 && player2) {
             player1.draw();
             player2.draw();
+		}
             
             requestAnimationFrame(gameLoop);
         
