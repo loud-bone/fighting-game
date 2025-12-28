@@ -1462,11 +1462,11 @@
 			// NEW: Finisher selection (only allow ONE choice)
 			if (inFinisher && !finisherChoice) {
 				let choice = null;
-				if (e.key.toLowerCase() === 'j') {
+				if (e.key.toLowerCase() === 'f') {
 					choice = 'flirty';
-				} else if (e.key.toLowerCase() === 'k') {
+				} else if (e.key.toLowerCase() === 'g') {
 					choice = 'funny';
-				} else if (e.key.toLowerCase() === 'l') {
+				} else if (e.key.toLowerCase() === 'h') {
 					choice = 'fatal';
 				}
             
@@ -1523,10 +1523,10 @@
 				right: 'd',
 				up: 'w',
 				down: 's',
-				punch: 'g',
-				kick: 'b',
-				special: 'h',
-				block: 'f'
+				punch: 'j',
+				kick: 'i',
+				special: 'l',
+				block: 'k'
 			};
     
 			// Create player using selected hero
@@ -2001,124 +2001,113 @@
 			console.log({midpoint, bgPan, adjustedPan});
 		}
 
-        // Game loop
-        function gameLoop() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// Game loop
+		function gameLoop() {
+			// Clear canvas
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			// Wait for fighters to exist
 			if (!player1 || !player2) {
 				requestAnimationFrame(gameLoop);
 				return;
 			}
-			
+    
+			// Update camera ALWAYS (even during announcements)
+			updateCamera();
+    
 			if (!gameOver && gameInCombat && !gamePaused) {
 				// Update fighters
 				player1.update(player2);
-                player2.update(player1);
-				
-				updateCamera();
-			}
-                
-                // Check collisions
-                if (checkCollision(player1, player2)) {
-                    let damage = 0;
-                    if (player1.attackType === 'special') damage = 8;
-                    else if (player1.attackType === 'punch') damage = 6;
-                    else if (player1.attackType === 'kick') damage = 10;
-                    
-                    player2.takeDamage(damage, player2.blocking, player1.facingRight);
-                    player1.attackBox.width = 0; // Hit detected, remove hitbox
-                    
-                    if (player2.health <= 0) {
-						// Player won the round!
+				player2.update(player1);
+        
+				// Check collisions
+				if (checkCollision(player1, player2)) {
+					let damage = 0;
+					if (player1.attackType === 'special') damage = 8;
+					else if (player1.attackType === 'punch') damage = 6;
+					else if (player1.attackType === 'kick') damage = 10;
+            
+					player2.takeDamage(damage, player2.blocking, player1.facingRight);
+					player1.attackBox.width = 0;
+            
+					if (player2.health <= 0) {
 						player1RoundWins++;
 						console.log('Player wins round! Score:', player1RoundWins, '-', player2RoundWins);
-						updateRoundWins();  // NEW: Show coin
+						updateRoundWins();
 
 						if (player1RoundWins >= 2) {
-        					// WON THE MATCH! Show finisher
-        					console.log('Player wins match! Starting finisher...');
-        					gameOver = true;
-
-							// Short delay, then start finisher
+							console.log('Player wins match! Starting finisher...');
+							gameOver = true;
 							setTimeout(() => {
 								startFinisher();
 							}, 1000);
 						} else {
-							// Won the round but not the match - start next round
 							console.log('Starting next round...');
 							currentRound++;
 							gameOver = true;
-
-							// Show round result
 							playAnnouncement('you-win', () => {
 								startRound();
 							});
 						}
 					}
 				}
-                
-                if (checkCollision(player2, player1)) {
-                    let damage = 0;
-                    if (player2.attackType === 'special') damage = 8;
-                    else if (player2.attackType === 'puch') damage = 6;
-                    else if (player2.attackType === 'kick') damage = 10;
-                    
-                    player1.takeDamage(damage, player2.blocking, player1.facingRight);
-                    player2.attackBox.width = 0;
-                    
-                    if (player1.health <= 0) {
-						// AI won the round!
+        
+				if (checkCollision(player2, player1)) {
+					let damage = 0;
+					if (player2.attackType === 'special') damage = 8;
+					else if (player2.attackType === 'punch') damage = 6;
+					else if (player2.attackType === 'kick') damage = 10;
+            
+					player1.takeDamage(damage, player1.blocking, player2.facingRight);
+					player2.attackBox.width = 0;
+            
+					if (player1.health <= 0) {
 						player2RoundWins++;
 						console.log('AI wins round! Score:', player1RoundWins, '-', player2RoundWins);
-						updateRoundWins();  // NEW: Show coin
+						updateRoundWins();
 
 						if (player2RoundWins >= 2) {
-							// Lost the match - GAME OVER!
-
 							console.log('AI wins match - Game Over!');
 							gameOver = true;
 							endGame();
 						} else {
-						// Lost the round but not the match - start next round
 							console.log('Starting next round...');
 							currentRound++;
 							gameOver = true;
-
-							// Show round result
 							playAnnouncement('you-lose', () => {
 								startRound();
 							});
 						}
 					}
 				}
-				
-                // Update UI
-                updateHealthBars();
-            }
-		
-		// Draw fighters
-		if (player1 && player2) {
-            player1.draw();
-            player2.draw();
-		}
-            
-            requestAnimationFrame(gameLoop);
         
-        function endGame() {
-            if (currentFight > 7 && player1.health > 0) {
-                // Game complete - will be replaced with full animation/credits later
-                const gameOverDiv = document.getElementById('gameOver');
-                gameOverDiv.textContent = 'GAME COMPLETE!';
-                gameOverDiv.style.display = 'block';
-            } else if (player1.health <= 0) {
-                playAnnouncement('you-lose');
-            } else {
-                playAnnouncement('victory');
-            }
-        }
-        // Start game loop (but don't init yet - wait for button click)
+				// Update UI
+				updateHealthBars();
+			}
+    
+			// Draw fighters (always, even during pauses/announcements)
+			if (player1 && player2) {
+				player1.draw();
+				player2.draw();
+			}
+    
+			requestAnimationFrame(gameLoop);
+		}
+
+		// END GAME (outside gameLoop!)
+		function endGame() {
+			if (currentFight > 7 && player1.health > 0) {
+				const gameOverDiv = document.getElementById('gameOver');
+				gameOverDiv.textContent = 'GAME COMPLETE!';
+				gameOverDiv.style.display = 'block';
+			} else if (player1.health <= 0) {
+				playAnnouncement('you-lose');
+			} else {
+				playAnnouncement('victory');
+			}
+		}
+
+		// Start game loop
 		gameLoop();
     </script>
 </body>
