@@ -1445,9 +1445,20 @@
 		});
 
         window.addEventListener('keydown', (e) => {
-			// ESC to pause/unpause
-			if (e.key === 'Escape') {
+			// SPACEBAR to pause/unpause
+			if (e.key === ' ' || e.code === 'Space') {
+				e.preventDefault();  // Prevent page scroll
+				if (!gamePaused) {
 				togglePause();
+				}
+				return;
+			}
+
+			// ESC to unpause (only if already paused)
+			if (e.key === 'Escape') {
+				if (gamePaused) {
+					togglePause();
+				}
 				return;
 			}
 			
@@ -2012,8 +2023,9 @@
 				return;
 			}
     
-			// Update camera ALWAYS (even during announcements)
-			updateCamera();
+			if (bgIntroPlayed || currentRound > 1) {
+				updateCamera();
+			}
     
 			if (!gameOver && gameInCombat && !gamePaused) {
 				// Update fighters
